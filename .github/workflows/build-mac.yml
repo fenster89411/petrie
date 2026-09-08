@@ -23,9 +23,9 @@ jobs:
           python3 -m pip install --upgrade pip
           pip install pyinstaller
 
-      - name: Build macOS App
+      - name: Build macOS App (Universal2)
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name "PetrieQuote" --add-data "index.html:." SERVER.PY
+          pyinstaller --noconfirm --onedir --windowed --name "PetrieQuote" --target-architecture universal2 --add-data "index.html:." SERVER.PY
           
           # Stage assets, logo, and databases into the macOS .app bundle
           mkdir -p dist/PetrieQuote.app/Contents/MacOS/assets
