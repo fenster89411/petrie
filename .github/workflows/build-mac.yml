@@ -1,0 +1,45 @@
+name: Build macOS Executable
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install PyInstaller
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install pyinstaller
+
+      - name: Build macOS App
+        run: |
+          pyinstaller --noconfirm --onedir --windowed --name "PetrieQuote" --add-data "index.html:." SERVER.PY
+          
+          # Stage assets, logo, and databases into the macOS .app bundle
+          mkdir -p dist/PetrieQuote.app/Contents/MacOS/assets
+          cp -r assets/* dist/PetrieQuote.app/Contents/MacOS/assets/ 2>/dev/null || true
+          cp logo.png dist/PetrieQuote.app/Contents/MacOS/ 2>/dev/null || true
+          cp clients.json presets.json terms.json images.json dist/PetrieQuote.app/Contents/MacOS/ 2>/dev/null || true
+
+      - name: Compress App Bundle
+        run: |
+          cd dist
+          zip -r PetrieQuote-macOS.zip PetrieQuote.app
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PetrieQuote-macOS
+          path: dist/PetrieQuote-macOS.zip
