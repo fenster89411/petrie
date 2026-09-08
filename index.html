@@ -1,0 +1,2039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Petrie Landscapes LTD - Quote Builder & Preset Manager</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root {
+      --primary: #3b4876;
+      --accent: #6c77a4;
+      --bg: #f7fafc;
+      --border: #b8c0d8;
+      --success: #38a169;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: #2d3748;
+    }
+    .app-container {
+      display: flex;
+      height: calc(100vh - 42px);
+      overflow: hidden;
+    }
+
+    /* AUTO-DISAPPEARING TOAST BANNER */
+    #toastNotification {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: #2d3748;
+      color: #ffffff;
+      padding: 10px 22px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 13px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 10000;
+      border-left: 4px solid var(--success);
+    }
+    #toastNotification.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    
+    /* TOP NAVIGATION TABS */
+    .nav-tabs {
+      display: flex;
+      background: #1a202c;
+      padding: 6px 12px;
+      gap: 10px;
+    }
+    .tab-btn {
+      background: #2d3748;
+      color: #cbd5e0;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      background: #4a5568;
+      color: #fff;
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* LEFT SIDEBAR EDITOR */
+    .editor {
+      width: 48%;
+      padding: 20px;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    /* PIN TOP HEADER CONTROLS IN EDITOR */
+    .sticky-editor-header {
+      position: sticky;
+      top: -20px;
+      background: #ffffff;
+      z-index: 95;
+      padding-top: 20px;
+      margin-top: -20px;
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 15px;
+    }
+
+    /* RIGHT PREVIEW CONTAINER */
+    .preview-container {
+      width: 52%;
+      padding: 20px;
+      overflow-y: auto;
+      background: #edf2f7;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* MANAGER SCREEN FULL SIDEBAR PANEL */
+    .manager-panel {
+      display: none;
+      width: 48%;
+      padding: 20px;
+      background: #fff;
+      border-right: 1px solid #e2e8f0;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+    .manager-section {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .manager-section h4 {
+      margin-top: 0;
+      color: var(--primary);
+      border-bottom: 1px solid #cbd5e0;
+      padding-bottom: 6px;
+    }
+    
+    .paper {
+      background: #fff;
+      width: 100%;
+      max-width: 750px;
+      height: auto;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      box-sizing: border-box;
+      margin-bottom: 30px;
+      position: relative;
+    }
+    
+    .doc-frame {
+      border: 1px solid var(--border);
+      padding: 35px 30px 25px 30px;
+      height: auto;
+      box-sizing: border-box;
+      position: relative;
+      background: #fff;
+    }
+
+    .header-branding {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .folder-bar {
+      background: #edf2f7;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .status-badge {
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: #718096;
+      color: white;
+    }
+    .status-badge.connected {
+      background: var(--success);
+    }
+    h2, h3, h4 { color: #2d3748; margin-top: 0; }
+    .form-group { margin-bottom: 12px; position: relative; }
+    label { display: block; font-weight: bold; font-size: 11px; margin-bottom: 4px; text-transform: uppercase; color: #4a5568; }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 13px;
+    }
+    .row { display: flex; gap: 10px; }
+    .row > div { flex: 1; }
+    button {
+      background: #2d3748;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    button:hover { opacity: 0.9; }
+    button.secondary { background: #718096; }
+    button.success { background: var(--success); }
+    button.danger { background: #e53e3e; }
+
+    /* LIVE SEARCH RESULTS DROPDOWN */
+    .search-results-box {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #cbd5e0;
+      border-radius: 0 0 6px 6px;
+      max-height: 200px;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 999;
+    }
+    .search-result-item {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 13px;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .search-result-item:hover {
+      background: #edf2f7;
+      color: var(--primary);
+      font-weight: bold;
+    }
+
+    .mgr-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 8px 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 6px;
+      font-size: 12px;
+    }
+    .item-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+      position: relative;
+    }
+    .item-img-preview {
+      max-width: 70px;
+      max-height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .doc-section { margin-top: 15px; }
+    .doc-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 20px; }
+    .doc-table th, .doc-table td { padding: 10px 8px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    .doc-table th { background-color: #f7fafc; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    
+    .item-cell-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+    }
+    .item-text { flex: 1; }
+    .doc-item-img {
+      width: 110px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #cbd5e0;
+      flex-shrink: 0;
+    }
+
+    /* STRICT PAGE BREAK PROTECTION */
+    tr, .doc-table tr, .totals-box, .doc-section, .doc-footer-container, .doc-term-block {
+      page-break-inside: avoid !important;
+      break-inside: avoid !important;
+    }
+
+    .totals-box { 
+      margin-left: auto; 
+      width: 260px; 
+      margin-top: 15px; 
+      margin-bottom: 20px;
+      text-align: right; 
+    }
+    .totals-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+    .totals-row.grand { 
+      font-weight: bold; 
+      font-size: 18px; 
+      border-top: 2px solid var(--primary); 
+      margin-top: 6px; 
+      padding-top: 6px; 
+      color: var(--primary);
+    }
+
+    .doc-footer-container {
+      position: relative;
+      margin-top: 35px;
+      padding-top: 10px;
+      clear: both;
+    }
+    .doc-footer-line {
+      border-top: 1px solid var(--border);
+      position: absolute;
+      left: -30px;
+      right: -30px;
+      bottom: 15px;
+      z-index: 1;
+    }
+    .doc-footer-content {
+      position: relative;
+      z-index: 2;
+    }
+    .tagline-text {
+      font-family: Georgia, serif;
+      font-style: italic;
+      color: #6c77a4;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .web-link {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-decoration: none;
+    }
+
+    .corner-flowers {
+      position: absolute;
+      right: -20px;
+      bottom: -15px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* PIN ACTION BUTTONS TO BOTTOM OF EDITOR PANEL */
+    .actions-bar {
+      position: sticky;
+      bottom: -20px;
+      background: #ffffff;
+      padding: 12px 0 20px 0;
+      border-top: 2px solid #e2e8f0;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      z-index: 100;
+    }
+
+    @media print {
+      tr, .doc-table tr, .totals-box, .doc-section, .doc-footer-container, .doc-term-block {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .nav-tabs, .editor, .manager-panel, .actions-bar, .folder-bar, #toastNotification { display: none !important; }
+      .preview-container { width: 100%; padding: 0; background: none; }
+      .paper { box-shadow: none; width: 100%; max-width: none; padding: 0; margin-bottom: 0; }
+      .doc-frame { border: 1px solid var(--border); padding: 30px; height: auto; }
+      .web-link { text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOAST BANNER CONTAINER -->
+<div id="toastNotification"></div>
+
+<!-- TOP NAVIGATION TABS -->
+<div class="nav-tabs">
+  <button class="tab-btn active" id="tabQuote" onclick="switchView('quote')">📝 Quote Generator</button>
+  <button class="tab-btn" id="tabManager" onclick="switchView('manager')">⚙️ Preset & Quote Manager</button>
+</div>
+
+<div class="app-container">
+  
+  <!-- VIEW 1: MAIN QUOTE GENERATOR FORM -->
+  <div class="editor" id="quoteBuilderView">
+    
+    <!-- STICKY TOP HEADER WRAPPER -->
+    <div class="sticky-editor-header">
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+        <h2 style="font-size: 18px; margin: 0;">Petrie Landscapes LTD Quote Generator</h2>
+        <button type="button" class="success" onclick="startNewQuote()" style="font-size: 11px; padding: 6px 10px; white-space: nowrap;">✨ New Blank Quote</button>
+      </div>
+      
+      <div class="folder-bar" style="margin-top: 12px;">
+        <div>
+          <span id="folderStatus" class="status-badge">Checking Server...</span>
+        </div>
+      </div>
+
+      <!-- LIVE SEARCH FOR SAVED QUOTES -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label>Search & Load Saved Quotes</label>
+        <input type="text" id="quoteSearchInput" placeholder="🔍 Type name, town, or ref (e.g. Darren, PL-1004)..." oninput="handleLiveQuoteSearch()" onfocus="handleLiveQuoteSearch()">
+        <div id="quoteSearchResults" class="search-results-box"></div>
+      </div>
+    </div>
+
+    <h3>Client Details & Quote Ref</h3>
+    
+    <div class="row">
+      <div class="form-group">
+        <label>Quote Ref No.</label>
+        <input type="text" id="quoteRef" value="PL-1001" oninput="updatePreview()" style="font-weight: bold; color: var(--primary);">
+      </div>
+      <div class="form-group">
+        <label>Select Saved Client</label>
+        <select id="clientPresetSelect" onchange="applyClientPreset(this.value)">
+          <option value="">-- Choose Saved Client --</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label>Client Name</label>
+        <input type="text" id="clientName" value="" placeholder="Client Name" oninput="handleClientNameInput()">
+      </div>
+      <div class="form-group">
+        <label>Telephone Number</label>
+        <input type="text" id="clientPhone" value="" placeholder="e.g., 07123 456789" oninput="updatePreview()">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Client Address (Line 2 used as Town/Area)</label>
+      <textarea id="clientAddress" rows="3" placeholder="Address..." oninput="updatePreview()"></textarea>
+    </div>
+
+    <button type="button" class="secondary" onclick="saveCurrentClientPreset()" style="width: 100%; margin-bottom: 12px;">💾 Save Client to Presets</button>
+
+    <div class="form-group">
+      <label>Introductory Message (Free Text)</label>
+      <textarea id="quoteIntro" rows="4" placeholder="Introductory message..." oninput="updatePreview()"></textarea>
+    </div>
+
+    <hr>
+
+    <h3>Line Items</h3>
+    <div class="form-group">
+      <label>Add From Preset Library (Alphabetical)</label>
+      <select id="presetSelect" onchange="addPresetItem(this.value)">
+        <option value="">-- Choose a Preset --</option>
+      </select>
+    </div>
+
+    <div id="itemsContainer"></div>
+
+    <button onclick="addItem()" style="width: 100%; margin-bottom: 15px;">+ Add Custom Line Item</button>
+
+    <!-- INTERNAL PROFIT & COST SUMMARY CARD -->
+    <div style="background: #f8fafc; border: 1px solid #cbd5e0; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
+      <label style="color: var(--primary); margin-bottom: 6px;">🔒 Internal Financial Breakdown (Private)</label>
+      <div style="display: flex; justify-content: space-between; font-size: 12px; color: #4a5568;">
+        <div>Base Cost: <strong id="calcBaseCost">£0.00</strong></div>
+        <div>Profit Margin: <strong id="calcProfit" style="color: var(--success);">+£0.00</strong></div>
+        <div>Client Subtotal: <strong id="calcClientSubtotal">£0.00</strong></div>
+      </div>
+    </div>
+
+    <hr>
+
+    <!-- PRESET-DRIVEN NOTES & TERMS -->
+    <h3>Notes & Terms</h3>
+    <div class="form-group">
+      <label>Add From Terms & Conditions Library</label>
+      <select id="termPresetSelect" onchange="addPresetTerm(this.value)">
+        <option value="">-- Choose a Term / Boilerplate --</option>
+      </select>
+    </div>
+
+    <div id="termsContainer"></div>
+
+    <button type="button" onclick="addCustomTerm()" style="width: 100%; margin-bottom: 15px;">+ Add Custom Term / Note</button>
+
+    <!-- ACTION BUTTONS -->
+    <div class="actions-bar">
+      <button onclick="saveQuoteToDisk(false)" style="flex: 1; min-width: 120px;" title="Overwrites the open quote">💾 Update Quote</button>
+      <button onclick="saveQuoteToDisk(true)" class="secondary" style="flex: 1; min-width: 120px;" title="Saves as a new reference number">➕ Save as New</button>
+      <button onclick="generatePdfToFolder()" class="success" style="flex: 1; min-width: 120px;">📄 Save PDF to Folder</button>
+      <button onclick="window.print()" class="secondary" style="flex: 1; min-width: 100px;">🖨️ Print</button>
+      <button onclick="sendEmail()" class="secondary" style="flex: 1; min-width: 100px;">✉️ Email</button>
+    </div>
+  </div>
+
+  <!-- VIEW 2: DEDICATED PRESET & QUOTE MANAGER SCREEN -->
+  <div class="manager-panel" id="presetManagerView">
+    <h2>⚙️ Preset & Quote Manager</h2>
+    <p style="font-size: 12px; color: #718096; margin-bottom: 20px;">Add, edit, or delete item presets, terms & conditions boilerplates, image assets, client presets, and quote files from your local hard drive.</p>
+
+    <!-- WORK ITEM PRESETS MANAGER -->
+    <div class="manager-section">
+      <h4>🔨 Work Item Presets Library</h4>
+      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+        <div class="form-group">
+          <label id="presetFormLabel">Add New Work Preset</label>
+          <input type="text" id="mgrPresetTitle" placeholder="Preset Title (e.g., Timber Decking Construction)">
+        </div>
+        <div class="form-group">
+          <textarea id="mgrPresetDesc" rows="4" placeholder="Description / specifications..."></textarea>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" onclick="handleAddOrUpdateWorkPreset()" style="flex: 1;">Save Work Preset</button>
+          <button type="button" class="secondary" id="cancelPresetEditBtn" onclick="clearWorkPresetForm()" style="display: none;">Cancel</button>
+        </div>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+        <strong>Existing Presets (A–Z)</strong>
+        <button type="button" class="secondary" style="font-size: 10px; padding: 2px 6px;" onclick="resetDefaultPresets()">Restore Defaults</button>
+      </div>
+      <input type="text" id="mgrPresetSearch" placeholder="🔍 Search work presets..." oninput="renderPresetManagers()" style="margin-bottom: 8px; font-size: 12px; padding: 6px;">
+      <div id="mgrItemList" style="max-height: 200px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- TERMS & CONDITIONS PRESETS MANAGER -->
+    <div class="manager-section">
+      <h4>📜 Terms & Conditions Presets Library</h4>
+      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+        <div class="form-group">
+          <label id="termPresetFormLabel">Add New Term / Boilerplate Preset</label>
+          <input type="text" id="mgrTermTitle" placeholder="Header Title (e.g., Payment Terms 30/60/10)">
+        </div>
+        <div class="form-group">
+          <textarea id="mgrTermText" rows="3" placeholder="Boilerplate text / conditions..."></textarea>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" onclick="handleAddOrUpdateTermPreset()" style="flex: 1;">Save Term Preset</button>
+          <button type="button" class="secondary" id="cancelTermEditBtn" onclick="clearTermPresetForm()" style="display: none;">Cancel</button>
+        </div>
+      </div>
+      <strong>Saved Terms List (A–Z)</strong>
+      <input type="text" id="mgrTermSearch" placeholder="🔍 Search terms..." oninput="renderPresetManagers()" style="margin-top: 6px; margin-bottom: 8px; font-size: 12px; padding: 6px;">
+      <div id="mgrTermList" style="max-height: 180px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- IMAGE LIBRARY MANAGER -->
+    <div class="manager-section">
+      <h4>📷 Sample Image Library</h4>
+      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+        <div class="form-group">
+          <label>Image Name / Title</label>
+          <input type="text" id="newImgTitle" placeholder="e.g., Grey Porcelain Sample">
+        </div>
+        
+        <div class="form-group">
+          <label>Image Source</label>
+          <select id="imgSourceType" onchange="toggleImgSourceInputs()">
+            <option value="path">Relative Path (e.g., images/sample.jpg)</option>
+            <option value="file">Choose File From Computer</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="pathInputGroup">
+          <input type="text" id="newImgPath" placeholder="images/grey-porcelain.jpg">
+        </div>
+
+        <div class="form-group" id="fileInputGroup" style="display:none;">
+          <input type="file" id="newImgFile" accept="image/*">
+        </div>
+
+        <button type="button" onclick="handleAddImageToLibrary()" style="width: 100%;">Add Image to Library</button>
+      </div>
+
+      <strong>Saved Library Images</strong>
+      <div id="mgrImgList" style="max-height: 180px; overflow-y: auto; margin-top: 6px;"></div>
+    </div>
+
+    <!-- CLIENT PRESETS MANAGER -->
+    <div class="manager-section">
+      <h4>👤 Saved Client Presets</h4>
+      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+        <div class="row">
+          <div class="form-group">
+            <label>Client Name</label>
+            <input type="text" id="mgrClientName" placeholder="e.g., Sarah Jenkins">
+          </div>
+          <div class="form-group">
+            <label>Telephone</label>
+            <input type="text" id="mgrClientPhone" placeholder="e.g., 07123 456789">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Client Address</label>
+          <textarea id="mgrClientAddress" rows="3" placeholder="Street&#10;Town&#10;Postcode"></textarea>
+        </div>
+        <button type="button" onclick="handleAddClientPreset()" style="width: 100%;">Save Client Preset</button>
+      </div>
+
+      <strong>Saved Clients List</strong>
+      <input type="text" id="mgrClientSearch" placeholder="🔍 Search client presets..." oninput="renderPresetManagers()" style="margin-top: 6px; margin-bottom: 8px; font-size: 12px; padding: 6px;">
+      <div id="mgrClientList" style="max-height: 150px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- SAVED QUOTE FILES MANAGER -->
+    <div class="manager-section">
+      <h4>📁 Saved Quote Files (Disk)</h4>
+      <input type="text" id="mgrQuotesSearch" placeholder="🔍 Search saved quote files..." oninput="renderPresetManagers()" style="margin-bottom: 8px; font-size: 12px; padding: 6px;">
+      <div id="mgrQuotesList" style="max-height: 220px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: LIVE PREVIEW FRAME -->
+  <div class="preview-container">
+    <div class="paper" id="quotePaper">
+      <div class="doc-frame">
+        <div>
+          <div class="header-branding">
+            <img src="logo.png" alt="Petrie Landscaping Logo" style="height: 105px; width: auto; object-fit: contain;" onerror="this.onerror=null; this.src='images/logo.png';">
+          </div>
+
+          <div id="metaBar" style="font-size: 12px; color: #718096; margin-top: 10px; margin-bottom: 15px; padding: 6px 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;"></div>
+
+          <div id="prevIntro" style="margin-top: 20px; white-space: pre-line; font-size: 13px;"></div>
+
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Works & Specifications</th>
+              </tr>
+            </thead>
+            <tbody id="prevItemsBody"></tbody>
+          </table>
+
+          <div class="totals-box">
+            <div class="totals-row">
+              <span>Sub Total:</span>
+              <span id="prevSubtotal">£0.00</span>
+            </div>
+            <div class="totals-row">
+              <span>VAT (20%):</span>
+              <span id="prevVat">£0.00</span>
+            </div>
+            <div class="totals-row grand">
+              <span>Total:</span>
+              <span id="prevTotal">£0.00</span>
+            </div>
+          </div>
+
+          <!-- DOCUMENT NOTES & TERMS SECTION -->
+          <div class="doc-section" style="border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 20px;" id="prevNotes"></div>
+        </div>
+
+        <div class="doc-footer-container">
+          <div class="doc-footer-line"></div>
+          <div class="doc-footer-content">
+            <div class="tagline-text">"Elevating Outdoor Living"</div>
+            <a href="https://petrielandscaping.co.uk" target="_blank" class="web-link">PETRIELANDSCAPING.CO.UK</a>
+          </div>
+
+          <svg class="corner-flowers" width="140" height="110" viewBox="0 0 140 110">
+            <g stroke="#808cb4" stroke-width="1.2" fill="#ffffff">
+              <path d="M 100,60 C 95,45 105,45 100,60 Z" />
+              <ellipse cx="100" cy="42" rx="4" ry="11" />
+              <ellipse cx="100" cy="78" rx="4" ry="11" />
+              <ellipse cx="82" cy="60" rx="11" ry="4" />
+              <ellipse cx="118" cy="60" rx="11" ry="4" />
+              <ellipse cx="87" cy="47" rx="4" ry="11" transform="rotate(-45 87 47)" />
+              <ellipse cx="113" cy="73" rx="4" ry="11" transform="rotate(-45 113 73)" />
+              <ellipse cx="113" cy="47" rx="4" ry="11" transform="rotate(45 113 47)" />
+              <ellipse cx="87" cy="73" rx="4" ry="11" transform="rotate(45 87 73)" />
+              <circle cx="100" cy="60" r="7" fill="#ffffff" stroke="#808cb4" stroke-width="1.2" />
+
+              <ellipse cx="50" cy="82" rx="3" ry="8" />
+              <ellipse cx="50" cy="106" rx="3" ry="8" />
+              <ellipse cx="38" cy="94" rx="8" ry="3" />
+              <ellipse cx="62" cy="94" rx="8" ry="3" />
+              <ellipse cx="41" cy="85" rx="3" ry="8" transform="rotate(-45 41 85)" />
+              <ellipse cx="59" cy="103" rx="3" ry="8" transform="rotate(-45 59 103)" />
+              <ellipse cx="59" cy="85" rx="3" ry="8" transform="rotate(45 59 85)" />
+              <ellipse cx="41" cy="103" rx="3" ry="8" transform="rotate(45 41 103)" />
+              <circle cx="50" cy="94" r="5" fill="#ffffff" stroke="#808cb4" stroke-width="1.2" />
+              
+              <path d="M 100,67 C 95,85 85,100 75,110" fill="none" />
+              <path d="M 50,99 C 48,104 45,108 42,110" fill="none" />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const defaultPresets = [
+    {
+      title: "Bespoke Porcelain Cladded Raised Planters",
+      desc: "• Install concrete foundations\n• Block work to create planter beds\n• Choice of porcelain cladding for facings of planter\n• Porcelain coping to match paving areas\n• Each planter to be lined with dpc\n• Planters to be infilled with premium top soil\n• Grouting with tuff joint utility\n• Corners of porcelain beds for the cladding to be mitred for a clean seem-less finish"
+    },
+    {
+      title: "Block Paving Works / Extension (11m² Approx)",
+      desc: "• Remove all existing decorative gravel from both sides of the current block-paved area\n• Excavate approximately 11m² to the required depth ready for new block paving\n• Remove and dispose of all unwanted gravel, excavated material and spoil from site\n• Prepare and level the ground to the correct formation\n• Supply and install MOT Type 1 hardcore sub-base\n• Mechanically compact hardcore to create a solid and stable foundation\n• Set correct levels and falls to tie into the existing block paving and allow suitable water run-off\n• Supply and install new concrete edging around the required perimeter to fully frame the newly paved areas\n• Bed concrete edgings securely on concrete and haunch into position for long-term stability\n• Supply approximately 11m² of block paving, including allowance for cuts and wastage\n• Blocks to be matched as closely as possible to the existing block paving\n• Supply and install sharp-sand laying course\n• Extend the existing block paving fully across both current gravel areas\n• Cut blocks neatly around walls, fencing, posts, gate and concrete edging\n• Tie new block paving neatly into the existing central paved area\n• Mechanically compact all newly laid block paving\n• Apply kiln-dried jointing sand and carry out final compaction\n• Remove all building waste and surplus materials generated by the works\n• Clean and tidy the complete working area upon completion\n• Labour allowance: 3-man team (approx. 3 working days)"
+    },
+    {
+      title: "Contrasting Porcelain Borders",
+      desc: "• Install contrasting porcelain plank borders to frame all paved areas\n• Borders to be selected to complement the main paving colour\n• Continue same border detail around lawn areas for a consistent finish throughout"
+    },
+    {
+      title: "Full Contract Inclusions",
+      desc: "• All materials supplied\n• Waste removal and site clearance\n• Delivery costs\n• Plant and machinery\n• Full installation and finishing"
+    },
+    {
+      title: "Gravel & Bark Mulch Dressing",
+      desc: "• Choice of gravel for around paving and stone area\n• Bark mulch for around all hedging areas"
+    },
+    {
+      title: "Japanese Seating Area",
+      desc: "• Removal and excavation of area\n• Adjustment for rainwater pipe\n• Geotextile membrane\n• Type 1 sub base\n• Staggered plank walk way to bench area\n• Choice of gravel\n• Materials and waste removal\n• Labour for 3 guys"
+    },
+    {
+      title: "Jointing & Finishing",
+      desc: "• All paving to be jointed using Tuff Joint or equivalent\n• Joint colour to be selected by client\n• Final clean and tidy of all installed areas upon completion"
+    },
+    {
+      title: "Labour, Plant & Equipment",
+      desc: "• All labour included for full project completion\n• Supply and use of all necessary machinery and tools\n• Project carried out by experienced installers to industry standards"
+    },
+    {
+      title: "Lawn Installation (Approx. 45 sqm)",
+      desc: "• Prepare and level ground for new lawn area\n• Supply and install new turf\n• Install porcelain plank edging to match paving borders for continuity"
+    },
+    {
+      title: "Manhole Cover Adjustments",
+      desc: "• Supply and install recessed manhole covers\n• Adjust chamber heights to suit new finished paving levels\n• Infill covers with matching porcelain paving for a seamless finish"
+    },
+    {
+      title: "Porcelain Paving Installation (Pathways & Front Garden)",
+      desc: "• Install new porcelain paving to:\n  - Side pathway\n  - Front garden area\n  - Circular feature adjacent to lawn area\n• All paving to be laid on a full wet mortar bed\n• All slabs to be primed prior to installation to ensure proper adhesion"
+    },
+    {
+      title: "Removal & Excavation (General Paving)",
+      desc: "• Break out and remove existing paving to the front and side of the property\n• Excavate to required depth to accommodate new sub-base and paving build-up\n• Load and remove all waste materials from site, including skip or grab hire as required"
+    },
+    {
+      title: "Replacing Main Step Entrance from Roadside",
+      desc: "• Removal and excavation of existing steps\n• Type 1 infill for each step\n• New foundation for new block work for steps\n• Block work to create treads for bigger steps approx 400mm\n• Materials and waste removal\n• Labour for 3 guys"
+    },
+    {
+      title: "Soil & Sub-base Works",
+      desc: "• Supply and install MOT Type 1 sub-base to all paved areas\n• Import and distribute topsoil around lawn areas to achieve correct levels and finish"
+    },
+    {
+      title: "Steps Construction & Cladding",
+      desc: "• Construct new steps at the front door\n• Clad existing steps leading up to the property from the pavement in porcelain to match surrounding areas"
+    },
+    {
+      title: "Wall Coping Stone",
+      desc: "• Priming the top of wall before installation\n• 20mm Indian sandstone for coping wall\n• Sandstone to be installed on a wet mortar mix and to be pointed for a neat finish\n• Grouted with tuff joint utility so it matches patio areas\n• Coping to be cut to follow the shape of the wall\n• Materials\n• Labour for 2 guys"
+    }
+  ];
+
+  const defaultTermPresets = [
+    {
+      title: "Standard Ground Conditions",
+      text: "Price based on normal ground conditions. Any unforeseen underground services, drainage issues, or unexpected concrete/rock excavation will be discussed prior to execution."
+    },
+    {
+      title: "Payment Milestones (30% / 60% / 10%)",
+      text: "Payment Terms: 30% deposit required upon booking to secure start date, 60% stage payment due on delivery of materials, and 10% final balance due upon completion."
+    },
+    {
+      title: "Payment Milestones (25% / 50% / 25%)",
+      text: "Payment Terms: 25% deposit required upon order confirmation, 50% progress payment due midway through works, and 25% final balance due upon completion."
+    },
+    {
+      title: "Quote Expiry Date (30 Days)",
+      text: "Quote Expiry: This quotation is valid for 30 days from the date of issue. Prices may be subject to review thereafter due to material cost fluctuations."
+    },
+    {
+      title: "Site Access & Utilities",
+      text: "Site Access: Client to provide clear, uninterrupted access to the working area, as well as access to working electricity and a mains water supply throughout project duration."
+    },
+    {
+      title: "Lawn & Planting Care",
+      text: "Aftercare: Freshly laid turf and new planting require daily watering by the client following installation. Petrie Landscapes LTD cannot be held responsible for foliage degradation due to lack of watering."
+    }
+  ];
+
+  let presets = [];
+  let termPresets = [];
+  let clientPresets = [];
+  let imageLibrary = []; 
+  let currentItems = [];
+  let currentTerms = [];
+  let savedQuotes = {};
+  let currentLoadedFile = null;
+  let editingPresetIndex = -1;
+  let editingTermPresetIndex = -1;
+  let toastTimer = null;
+
+  /* EASTER EGG AUDIO STATE (HIDDEN IN ASSETS FOLDER) */
+  let easterEggAudio = null;
+  let easterEggTriggered = false;
+
+  // Unlock audio context on the user's first click anywhere on the page
+  document.addEventListener('click', function unlockAudio() {
+    if (!easterEggAudio) {
+      easterEggAudio = new Audio('assets/sound.mp3');
+      easterEggAudio.load();
+    }
+  }, { once: true });
+
+  async function init() {
+    await syncWithServer();
+
+    startNewQuote();
+
+    renderPresetsDropdown();
+    renderTermPresetsDropdown();
+    renderClientPresetsDropdown();
+    renderPresetManagers();
+  }
+
+  /* TOAST NOTIFICATION HELPER */
+  function showToast(message) {
+    const toast = document.getElementById('toastNotification');
+    toast.innerText = message;
+    toast.classList.add('show');
+
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2500);
+  }
+
+  /* DYNAMIC INTRO TEMPLATE GENERATOR */
+  function generateIntroText(fullName) {
+    const firstName = fullName && fullName.trim() !== "" ? fullName.trim().split(' ')[0] : "<Name>";
+    return `Dear ${firstName},\nThank you for the opportunity to provide a quote for your upcoming groundwork.\nPlease find your itemised quotation below. I hope it meets your requirements, and I’d be delighted to discuss any questions you may have.`;
+  }
+
+  function handleClientNameInput() {
+    const fullName = document.getElementById('clientName').value;
+    document.getElementById('quoteIntro').value = generateIntroText(fullName);
+
+    // EASTER EGG: Case-insensitive trigger for "Brian Laudrup"
+    if (fullName.trim().toLowerCase() === 'brian laudrup') {
+      if (!easterEggTriggered) {
+        playEasterEggSound();
+        easterEggTriggered = true;
+      }
+    } else {
+      stopEasterEggSound();
+      easterEggTriggered = false;
+    }
+
+    updatePreview();
+  }
+
+  function playEasterEggSound() {
+    if (!easterEggAudio) {
+      easterEggAudio = new Audio('assets/sound.mp3');
+    }
+    easterEggAudio.currentTime = 0;
+    const playPromise = easterEggAudio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(err => {
+        console.log('Audio playback error:', err);
+        showToast(`Audio Error: ${err.message || 'Click page first'}`);
+      });
+    }
+  }
+
+  function stopEasterEggSound() {
+    if (easterEggAudio) {
+      easterEggAudio.pause();
+      easterEggAudio.currentTime = 0;
+    }
+  }
+
+  function getPostcodeFromAddress(address) {
+    if (!address) return '';
+    const pcMatch = address.match(/[a-z]{1,2}\d[a-z0-9]?\s*\d[a-z]{2}/i);
+    if (pcMatch) return pcMatch[0].toUpperCase();
+
+    const lines = address.split('\n').map(s => s.trim()).filter(Boolean);
+    if (lines.length > 0) return lines[lines.length - 1];
+    return '';
+  }
+
+  /* LIVE SEARCH DROPDOWN FOR QUOTES */
+  function handleLiveQuoteSearch() {
+    const query = document.getElementById('quoteSearchInput').value.toLowerCase().trim();
+    const resultsBox = document.getElementById('quoteSearchResults');
+
+    const quoteKeys = Object.keys(savedQuotes);
+    const matches = quoteKeys.filter(key => {
+      const q = savedQuotes[key];
+      const town = getTownFromAddress(q.clientAddress);
+      const ref = q.quoteRef || '';
+      const label = `${q.clientName} ${town} ${ref}`.toLowerCase();
+      return !query || label.includes(query) || key.toLowerCase().includes(query);
+    });
+
+    if (matches.length === 0) {
+      resultsBox.innerHTML = '<div class="search-result-item" style="color:#a0aec0; cursor:default;">No quotes found</div>';
+    } else {
+      let html = '';
+      matches.forEach(key => {
+        const q = savedQuotes[key];
+        const town = getTownFromAddress(q.clientAddress);
+        const townStr = town ? ` (${town})` : '';
+        const refStr = q.quoteRef || 'PL-1001';
+        html += `<div class="search-result-item" onclick="selectQuoteFromSearchResult('${key}')">📁 <strong>${q.clientName}</strong>${townStr} - ${refStr}</div>`;
+      });
+      resultsBox.innerHTML = html;
+    }
+
+    resultsBox.style.display = 'block';
+  }
+
+  function selectQuoteFromSearchResult(key) {
+    document.getElementById('quoteSearchResults').style.display = 'none';
+    const q = savedQuotes[key];
+    if (!q) return;
+
+    currentLoadedFile = key;
+    const town = getTownFromAddress(q.clientAddress);
+    const townStr = town ? ` (${town})` : '';
+    document.getElementById('quoteSearchInput').value = `${q.clientName}${townStr} ${q.quoteRef || 'PL-1001'}`;
+
+    loadQuoteDataIntoEditor(q);
+    showToast(`Loaded Quote ${q.quoteRef || ''}`);
+  }
+
+  document.addEventListener('click', function(e) {
+    const box = document.getElementById('quoteSearchResults');
+    const input = document.getElementById('quoteSearchInput');
+    if (box && input && !box.contains(e.target) && e.target !== input) {
+      box.style.display = 'none';
+    }
+  });
+
+  /* EXPORT PDF DIRECTLY TO QUOTEPDFS FOLDER WITH SMART PAGE BREAKS */
+  async function generatePdfToFolder() {
+    const element = document.getElementById('quotePaper');
+    const name = document.getElementById('clientName').value || "Quote";
+    const address = document.getElementById('clientAddress').value;
+    const town = getTownFromAddress(address);
+    const ref = document.getElementById('quoteRef').value || "PL-1001";
+    const townStr = town ? `_${town}` : '';
+
+    const pdfName = `${name}${townStr}_${ref}.pdf`.replace(/[/\\?%*:|"<>]/g, '_').trim();
+
+    showToast("Generating PDF in background...");
+
+    const opt = {
+      margin:       [8, 8, 8, 8],
+      filename:     pdfName,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, logging: false },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['css', 'legacy'], avoid: ['tr', '.totals-box', '.doc-section', '.doc-term-block', '.doc-footer-container'] }
+    };
+
+    try {
+      const pdfDataUri = await html2pdf().set(opt).from(element).output('datauristring');
+
+      const response = await fetch('/api/save_pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: pdfName, pdfData: pdfDataUri })
+      });
+
+      if (response.ok) {
+        showToast(`Saved: QuotePDFs/${pdfName}`);
+      } else {
+        showToast("Error saving PDF file to disk.");
+      }
+    } catch(e) {
+      showToast("PDF generation failed. Check internet connection for CDN.");
+    }
+  }
+
+  /* GLOBAL AUTOMATIC BULLET POINT HANDLER FOR TEXTAREAS */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && e.target && e.target.tagName === 'TEXTAREA') {
+      const isDesc = (e.target.placeholder && (
+                       e.target.placeholder.toLowerCase().includes('description') ||
+                       e.target.placeholder.toLowerCase().includes('specification')
+                     )) ||
+                     e.target.id === 'mgrPresetDesc' ||
+                     e.target.closest('.item-card');
+
+      if (isDesc) {
+        e.preventDefault();
+        const target = e.target;
+        const val = target.value;
+        const start = target.selectionStart;
+        const end = target.selectionEnd;
+
+        const lineStart = val.lastIndexOf('\n', start - 1) + 1;
+        const currentLine = val.substring(lineStart, start);
+        const trimmed = currentLine.trim();
+
+        if (trimmed === '•' || trimmed === '-' || trimmed === '*') {
+          const newVal = val.substring(0, lineStart) + val.substring(end);
+          target.value = newVal;
+          target.selectionStart = target.selectionEnd = lineStart;
+          target.dispatchEvent(new Event('input', { bubbles: true }));
+          return;
+        }
+
+        const insertText = '\n• ';
+        const newVal = val.substring(0, start) + insertText + val.substring(end);
+        target.value = newVal;
+        target.selectionStart = target.selectionEnd = start + insertText.length;
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+  });
+
+  document.addEventListener('focusin', function(e) {
+    if (e.target && e.target.tagName === 'TEXTAREA') {
+      const isDesc = (e.target.placeholder && (
+                       e.target.placeholder.toLowerCase().includes('description') ||
+                       e.target.placeholder.toLowerCase().includes('specification')
+                     )) ||
+                     e.target.id === 'mgrPresetDesc' ||
+                     e.target.closest('.item-card');
+
+      if (isDesc && !e.target.value.trim()) {
+        e.target.value = '• ';
+        e.target.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+    }
+  });
+
+  function switchView(view) {
+    document.getElementById('quoteBuilderView').style.display = (view === 'quote') ? 'block' : 'none';
+    document.getElementById('presetManagerView').style.display = (view === 'manager') ? 'block' : 'none';
+    
+    document.getElementById('tabQuote').classList.toggle('active', view === 'quote');
+    document.getElementById('tabManager').classList.toggle('active', view === 'manager');
+
+    renderPresetsDropdown();
+    renderTermPresetsDropdown();
+    renderClientPresetsDropdown();
+    renderPresetManagers();
+  }
+
+  function getTownFromAddress(address) {
+    if (!address) return '';
+    const lines = address.split('\n').map(s => s.trim()).filter(Boolean);
+    if (lines.length >= 2) return lines[1];
+    if (lines.length === 1) return lines[0];
+    return '';
+  }
+
+  function getNextQuoteRef() {
+    let maxNum = 1000;
+
+    Object.keys(savedQuotes).forEach(key => {
+      const q = savedQuotes[key];
+      
+      if (q && q.quoteRef) {
+        const match = q.quoteRef.match(/\d+/);
+        if (match) {
+          const num = parseInt(match[0], 10);
+          if (num > maxNum && num < 100000) maxNum = num;
+        }
+      }
+
+      const plMatch = key.match(/PL[_-]?(\d+)/i);
+      if (plMatch) {
+        const num = parseInt(plMatch[1], 10);
+        if (num > maxNum && num < 100000) maxNum = num;
+      }
+    });
+
+    return `PL-${maxNum + 1}`;
+  }
+
+  function startNewQuote() {
+    currentLoadedFile = null;
+    currentItems = [];
+    currentTerms = [
+      { id: Date.now(), title: defaultTermPresets[0].title, text: defaultTermPresets[0].text }
+    ];
+
+    stopEasterEggSound();
+    easterEggTriggered = false;
+
+    document.getElementById('quoteRef').value = getNextQuoteRef();
+    document.getElementById('clientName').value = "";
+    document.getElementById('clientPhone').value = "";
+    document.getElementById('clientAddress').value = "";
+    document.getElementById('quoteIntro').value = generateIntroText("");
+    document.getElementById('quoteSearchInput').value = "";
+    document.getElementById('clientPresetSelect').value = "";
+    
+    renderItemsEditor();
+    renderTermsEditor();
+    updatePreview();
+  }
+
+  async function syncWithServer() {
+    try {
+      const res = await fetch('/api/load');
+      if (res.ok) {
+        const data = await res.json();
+        
+        let loadedPresets = data.presets || [];
+        defaultPresets.forEach(dp => {
+          const exists = loadedPresets.some(p => p.title.toLowerCase() === dp.title.toLowerCase());
+          if (!exists) loadedPresets.push(dp);
+        });
+
+        let loadedTerms = data.terms || [];
+        defaultTermPresets.forEach(dt => {
+          const exists = loadedTerms.some(t => t.title.toLowerCase() === dt.title.toLowerCase());
+          if (!exists) loadedTerms.push(dt);
+        });
+
+        presets = loadedPresets;
+        termPresets = loadedTerms;
+        clientPresets = data.clients || [];
+        imageLibrary = data.images || [];
+        savedQuotes = data.quotes || {};
+
+        const statusBadge = document.getElementById('folderStatus');
+        statusBadge.innerText = "🟢 Hard Drive Auto-Sync Active";
+        statusBadge.classList.add('connected');
+
+        sortPresetsAlphabetically();
+        sortTermPresetsAlphabetically();
+        sortImagesAlphabetically();
+
+        await syncConfigToServer();
+        return;
+      }
+    } catch (e) {}
+
+    presets = [...defaultPresets];
+    termPresets = [...defaultTermPresets];
+    clientPresets = [];
+    sortPresetsAlphabetically();
+    sortTermPresetsAlphabetically();
+
+    const statusBadge = document.getElementById('folderStatus');
+    statusBadge.innerText = "🟡 Standalone Mode (Run server.py for Hard Drive Sync)";
+  }
+
+  async function syncConfigToServer() {
+    try {
+      await fetch('/api/save_config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ presets, terms: termPresets, clients: clientPresets, images: imageLibrary })
+      });
+    } catch (e) {}
+  }
+
+  async function resetDefaultPresets() {
+    if (confirm("Are you sure you want to restore default presets?")) {
+      defaultPresets.forEach(dp => {
+        const exists = presets.some(p => p.title.toLowerCase() === dp.title.toLowerCase());
+        if (!exists) presets.push(dp);
+      });
+      defaultTermPresets.forEach(dt => {
+        const exists = termPresets.some(t => t.title.toLowerCase() === dt.title.toLowerCase());
+        if (!exists) termPresets.push(dt);
+      });
+
+      sortPresetsAlphabetically();
+      sortTermPresetsAlphabetically();
+      renderPresetsDropdown();
+      renderTermPresetsDropdown();
+      renderPresetManagers();
+      await syncConfigToServer();
+      showToast("Default presets restored!");
+    }
+  }
+
+  async function autoSaveClientPresetIfNew(name, phone, address) {
+    if (!name || name.trim() === "") return;
+    const cleanName = name.trim();
+    const existingIndex = clientPresets.findIndex(c => c.name.toLowerCase() === cleanName.toLowerCase());
+    
+    if (existingIndex >= 0) {
+      clientPresets[existingIndex].phone = phone;
+      clientPresets[existingIndex].address = address;
+    } else {
+      clientPresets.push({ name: cleanName, phone: phone, address: address });
+    }
+
+    renderClientPresetsDropdown();
+    renderPresetManagers();
+    await syncConfigToServer();
+  }
+
+  async function saveCurrentClientPreset() {
+    const name = document.getElementById('clientName').value.trim();
+    const phone = document.getElementById('clientPhone').value.trim();
+    const address = document.getElementById('clientAddress').value.trim();
+
+    if (!name) {
+      showToast("Please enter a Client Name first!");
+      return;
+    }
+
+    await autoSaveClientPresetIfNew(name, phone, address);
+    showToast(`Client "${name}" saved to presets!`);
+  }
+
+  async function saveQuoteToDisk(isSaveAsNew = false) {
+    const name = document.getElementById('clientName').value || "Unnamed";
+    const phone = document.getElementById('clientPhone').value;
+    const address = document.getElementById('clientAddress').value;
+    const town = getTownFromAddress(address);
+    let ref = document.getElementById('quoteRef').value.trim();
+
+    if (isSaveAsNew) {
+      ref = getNextQuoteRef();
+      document.getElementById('quoteRef').value = ref;
+      currentLoadedFile = null;
+    }
+
+    if (!ref) {
+      ref = getNextQuoteRef();
+      document.getElementById('quoteRef').value = ref;
+    }
+
+    if (!currentLoadedFile) {
+      const cleanName = name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+      const cleanTown = town ? '_' + town.replace(/[^a-z0-9]/gi, '_').toLowerCase() : '';
+      const cleanRef = ref.replace(/[^a-z0-9]/gi, '_');
+      currentLoadedFile = `${cleanName}${cleanTown}_${cleanRef}.json`;
+    }
+
+    if (name && name !== "Unnamed") {
+      await autoSaveClientPresetIfNew(name, phone, address);
+    }
+
+    let presetsUpdated = false;
+    currentItems.forEach(item => {
+      if (item.title && item.title !== "Custom Service") {
+        const exists = presets.some(p => p.title.toLowerCase() === item.title.toLowerCase());
+        if (!exists) {
+          presets.push({ title: item.title, desc: item.desc });
+          presetsUpdated = true;
+        }
+      }
+    });
+
+    if (presetsUpdated) {
+      sortPresetsAlphabetically();
+      renderPresetsDropdown();
+      renderPresetManagers();
+      await syncConfigToServer();
+    }
+
+    const quoteData = {
+      quoteRef: ref,
+      clientName: name,
+      clientPhone: phone,
+      clientAddress: address,
+      quoteIntro: document.getElementById('quoteIntro').value,
+      terms: currentTerms,
+      items: currentItems
+    };
+
+    savedQuotes[currentLoadedFile] = quoteData;
+
+    updatePreview();
+
+    try {
+      await fetch('/api/save_quote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fileName: currentLoadedFile, data: quoteData })
+      });
+      showToast(`Quote ${ref} saved successfully!`);
+    } catch (e) {
+      showToast(`Quote ${ref} saved in session!`);
+    }
+  }
+
+  function loadQuoteDataIntoEditor(q) {
+    let ref = q.quoteRef || "PL-1001";
+    document.getElementById('quoteRef').value = ref;
+    document.getElementById('clientName').value = q.clientName || '';
+    document.getElementById('clientPhone').value = q.clientPhone || '';
+    document.getElementById('clientAddress').value = q.clientAddress || '';
+    document.getElementById('quoteIntro').value = q.quoteIntro || generateIntroText(q.clientName);
+
+    if (q.terms && Array.isArray(q.terms)) {
+      currentTerms = q.terms.map((t, idx) => ({ ...t, id: t.id || Date.now() + idx }));
+    } else if (q.notes || q.quoteNotes) {
+      currentTerms = [{ id: Date.now(), title: "General Notes & Terms", text: q.notes || q.quoteNotes }];
+    } else {
+      currentTerms = [{ id: Date.now(), title: defaultTermPresets[0].title, text: defaultTermPresets[0].text }];
+    }
+
+    currentItems = (q.items || []).map((item, idx) => {
+      return {
+        ...item,
+        cost: item.cost !== undefined && item.cost !== null ? item.cost : '',
+        markup: item.markup !== undefined && item.markup !== null ? item.markup : '',
+        clientPrice: item.clientPrice !== undefined && item.clientPrice !== null ? item.clientPrice : '',
+        id: item.id || Date.now() + idx
+      };
+    });
+
+    renderItemsEditor();
+    renderTermsEditor();
+    updatePreview();
+  }
+
+  function sortPresetsAlphabetically() {
+    presets.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }));
+  }
+
+  function sortTermPresetsAlphabetically() {
+    termPresets.sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' }));
+  }
+
+  function sortImagesAlphabetically() {
+    imageLibrary.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
+  }
+
+  function renderPresetsDropdown() {
+    const select = document.getElementById('presetSelect');
+    let html = '<option value="">-- Choose a Preset --</option>';
+    presets.forEach((p, index) => {
+      html += `<option value="${index}">${p.title}</option>`;
+    });
+    select.innerHTML = html;
+  }
+
+  function renderTermPresetsDropdown() {
+    const select = document.getElementById('termPresetSelect');
+    let html = '<option value="">-- Choose a Term / Boilerplate --</option>';
+    termPresets.forEach((t, index) => {
+      html += `<option value="${index}">${t.title}</option>`;
+    });
+    select.innerHTML = html;
+  }
+
+  /* MANAGER PRESET ACTIONS */
+  function editItemPreset(index) {
+    editingPresetIndex = index;
+    const p = presets[index];
+    document.getElementById('mgrPresetTitle').value = p.title;
+    document.getElementById('mgrPresetDesc').value = p.desc;
+    document.getElementById('presetFormLabel').innerText = "Edit Work Preset";
+    document.getElementById('cancelPresetEditBtn').style.display = "inline-block";
+  }
+
+  function clearWorkPresetForm() {
+    editingPresetIndex = -1;
+    document.getElementById('mgrPresetTitle').value = "";
+    document.getElementById('mgrPresetDesc').value = "";
+    document.getElementById('presetFormLabel').innerText = "Add New Work Preset";
+    document.getElementById('cancelPresetEditBtn').style.display = "none";
+  }
+
+  async function handleAddOrUpdateWorkPreset() {
+    const title = document.getElementById('mgrPresetTitle').value.trim();
+    const desc = document.getElementById('mgrPresetDesc').value;
+
+    if (!title) return;
+
+    if (editingPresetIndex >= 0) {
+      presets[editingPresetIndex] = { title, desc };
+    } else {
+      presets.push({ title, desc });
+    }
+
+    sortPresetsAlphabetically();
+    clearWorkPresetForm();
+    renderPresetsDropdown();
+    renderPresetManagers();
+    await syncConfigToServer();
+    showToast(`Preset "${title}" saved!`);
+  }
+
+  async function deleteItemPreset(index) {
+    if (confirm("Are you sure you want to delete this preset?")) {
+      presets.splice(index, 1);
+      renderPresetsDropdown();
+      renderPresetManagers();
+      await syncConfigToServer();
+      showToast(`Preset deleted`);
+    }
+  }
+
+  async function saveItemToPreset(index) {
+    const item = currentItems[index];
+    if (!item.title || item.title === "Custom Service") return;
+
+    const existingIndex = presets.findIndex(p => p.title.toLowerCase() === item.title.toLowerCase());
+    if (existingIndex >= 0) {
+      presets[existingIndex].desc = item.desc;
+    } else {
+      presets.push({ title: item.title, desc: item.desc });
+    }
+
+    sortPresetsAlphabetically();
+    renderPresetsDropdown();
+    renderPresetManagers();
+    await syncConfigToServer();
+    showToast(`"${item.title}" saved as preset!`);
+  }
+
+  /* TERM PRESETS ACTIONS */
+  function editTermPreset(index) {
+    editingTermPresetIndex = index;
+    const t = termPresets[index];
+    document.getElementById('mgrTermTitle').value = t.title;
+    document.getElementById('mgrTermText').value = t.text;
+    document.getElementById('termPresetFormLabel').innerText = "Edit Term Preset";
+    document.getElementById('cancelTermEditBtn').style.display = "inline-block";
+  }
+
+  function clearTermPresetForm() {
+    editingTermPresetIndex = -1;
+    document.getElementById('mgrTermTitle').value = "";
+    document.getElementById('mgrTermText').value = "";
+    document.getElementById('termPresetFormLabel').innerText = "Add New Term / Boilerplate Preset";
+    document.getElementById('cancelTermEditBtn').style.display = "none";
+  }
+
+  async function handleAddOrUpdateTermPreset() {
+    const title = document.getElementById('mgrTermTitle').value.trim();
+    const text = document.getElementById('mgrTermText').value;
+
+    if (!title) return;
+
+    if (editingTermPresetIndex >= 0) {
+      termPresets[editingTermPresetIndex] = { title, text };
+    } else {
+      termPresets.push({ title, text });
+    }
+
+    sortTermPresetsAlphabetically();
+    clearTermPresetForm();
+    renderTermPresetsDropdown();
+    renderPresetManagers();
+    await syncConfigToServer();
+    showToast(`Term preset "${title}" saved!`);
+  }
+
+  async function deleteTermPreset(index) {
+    if (confirm("Are you sure you want to delete this term preset?")) {
+      termPresets.splice(index, 1);
+      renderTermPresetsDropdown();
+      renderPresetManagers();
+      await syncConfigToServer();
+      showToast("Term preset deleted");
+    }
+  }
+
+  async function saveTermToPreset(index) {
+    const term = currentTerms[index];
+    if (!term.title) return;
+
+    const existingIndex = termPresets.findIndex(t => t.title.toLowerCase() === term.title.toLowerCase());
+    if (existingIndex >= 0) {
+      termPresets[existingIndex].text = term.text;
+    } else {
+      termPresets.push({ title: term.title, text: term.text });
+    }
+
+    sortTermPresetsAlphabetically();
+    renderTermPresetsDropdown();
+    renderPresetManagers();
+    await syncConfigToServer();
+    showToast(`"${term.title}" saved as term preset!`);
+  }
+
+  function renderClientPresetsDropdown() {
+    const select = document.getElementById('clientPresetSelect');
+    let html = '<option value="">-- Choose Saved Client --</option>';
+    clientPresets.forEach((client, index) => {
+      html += `<option value="${index}">${client.name}</option>`;
+    });
+    select.innerHTML = html;
+  }
+
+  async function handleAddClientPreset() {
+    const name = document.getElementById('mgrClientName').value.trim();
+    const phone = document.getElementById('mgrClientPhone').value.trim();
+    const address = document.getElementById('mgrClientAddress').value.trim();
+
+    if (!name) return;
+
+    const existingIndex = clientPresets.findIndex(c => c.name.toLowerCase() === name.toLowerCase());
+    if (existingIndex >= 0) {
+      clientPresets[existingIndex].phone = phone;
+      clientPresets[existingIndex].address = address;
+    } else {
+      clientPresets.push({ name, phone, address });
+    }
+
+    document.getElementById('mgrClientName').value = "";
+    document.getElementById('mgrClientPhone').value = "";
+    document.getElementById('mgrClientAddress').value = "";
+
+    renderClientPresetsDropdown();
+    renderPresetManagers();
+    await syncConfigToServer();
+    showToast(`Client "${name}" saved!`);
+  }
+
+  async function deleteClientPreset(index) {
+    if (confirm("Are you sure you want to delete this client?")) {
+      clientPresets.splice(index, 1);
+      renderClientPresetsDropdown();
+      renderPresetManagers();
+      await syncConfigToServer();
+      showToast("Client deleted");
+    }
+  }
+
+  function applyClientPreset(index) {
+    if (index === "") return;
+    const client = clientPresets[index];
+    document.getElementById('clientName').value = client.name || '';
+    document.getElementById('clientPhone').value = client.phone || '';
+    document.getElementById('clientAddress').value = client.address || '';
+
+    document.getElementById('quoteIntro').value = generateIntroText(client.name);
+
+    updatePreview();
+  }
+
+  function toggleImgSourceInputs() {
+    const type = document.getElementById('imgSourceType').value;
+    document.getElementById('fileInputGroup').style.display = type === 'file' ? 'block' : 'none';
+    document.getElementById('pathInputGroup').style.display = type === 'path' ? 'block' : 'none';
+  }
+
+  async function handleAddImageToLibrary() {
+    const titleInput = document.getElementById('newImgTitle');
+    const title = titleInput.value.trim();
+    const sourceType = document.getElementById('imgSourceType').value;
+
+    if (!title) return;
+
+    if (sourceType === 'path') {
+      const pathInput = document.getElementById('newImgPath');
+      const path = pathInput.value.trim();
+      if (!path) return;
+      
+      imageLibrary.push({ name: title, dataUrl: path });
+      sortImagesAlphabetically();
+      titleInput.value = '';
+      pathInput.value = '';
+      renderPresetManagers();
+      renderItemsEditor();
+      await syncConfigToServer();
+      showToast(`Image "${title}" added!`);
+    } else {
+      const fileInput = document.getElementById('newImgFile');
+      if (!fileInput.files[0]) return;
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        imageLibrary.push({ name: title, dataUrl: e.target.result });
+        sortImagesAlphabetically();
+        titleInput.value = '';
+        fileInput.value = '';
+        renderPresetManagers();
+        renderItemsEditor();
+        await syncConfigToServer();
+        showToast(`Image "${title}" saved!`);
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  async function deleteLibraryImage(index) {
+    if (confirm("Are you sure you want to delete this image?")) {
+      imageLibrary.splice(index, 1);
+      renderPresetManagers();
+      renderItemsEditor();
+      await syncConfigToServer();
+      showToast("Image deleted");
+    }
+  }
+
+  async function deleteSavedQuoteFile(key) {
+    if (confirm("Are you sure you want to delete this quote?")) {
+      delete savedQuotes[key];
+      renderPresetManagers();
+
+      try {
+        await fetch('/api/delete_quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fileName: key })
+        });
+      } catch (e) {}
+
+      if (currentLoadedFile === key) {
+        startNewQuote();
+      }
+      showToast("Quote deleted");
+    }
+  }
+
+  function renderPresetManagers() {
+    // Render Work Items Presets
+    const iList = document.getElementById('mgrItemList');
+    const pQuery = (document.getElementById('mgrPresetSearch')?.value || '').toLowerCase().trim();
+    let itemHtml = '';
+    
+    const filteredPresets = presets.filter(p => !pQuery || p.title.toLowerCase().includes(pQuery) || p.desc.toLowerCase().includes(pQuery));
+    if (!filteredPresets.length) {
+      itemHtml = '<span style="font-size:11px; color:#718096;">No item presets found.</span>';
+    } else {
+      filteredPresets.forEach((p) => {
+        const origIdx = presets.indexOf(p);
+        itemHtml += `
+          <div class="mgr-item">
+            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; font-weight: 500;">${p.title}</span>
+            <div style="display:flex; gap:4px;">
+              <button type="button" class="secondary" style="padding:2px 6px; font-size:10px;" onclick="editItemPreset(${origIdx})">✏️ Edit</button>
+              <button type="button" class="danger" style="padding:2px 6px; font-size:10px;" onclick="deleteItemPreset(${origIdx})">🗑️ Delete</button>
+            </div>
+          </div>`;
+      });
+    }
+    iList.innerHTML = itemHtml;
+
+    // Render Term Presets
+    const tList = document.getElementById('mgrTermList');
+    const tQuery = (document.getElementById('mgrTermSearch')?.value || '').toLowerCase().trim();
+    let termHtml = '';
+
+    const filteredTerms = termPresets.filter(t => !tQuery || t.title.toLowerCase().includes(tQuery) || t.text.toLowerCase().includes(tQuery));
+    if (!filteredTerms.length) {
+      termHtml = '<span style="font-size:11px; color:#718096;">No term presets found.</span>';
+    } else {
+      filteredTerms.forEach((t) => {
+        const origIdx = termPresets.indexOf(t);
+        termHtml += `
+          <div class="mgr-item">
+            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%; font-weight: 500;">${t.title}</span>
+            <div style="display:flex; gap:4px;">
+              <button type="button" class="secondary" style="padding:2px 6px; font-size:10px;" onclick="editTermPreset(${origIdx})">✏️ Edit</button>
+              <button type="button" class="danger" style="padding:2px 6px; font-size:10px;" onclick="deleteTermPreset(${origIdx})">🗑️ Delete</button>
+            </div>
+          </div>`;
+      });
+    }
+    tList.innerHTML = termHtml;
+
+    // Render Client Presets
+    const cList = document.getElementById('mgrClientList');
+    const cQuery = (document.getElementById('mgrClientSearch')?.value || '').toLowerCase().trim();
+    let clientHtml = '';
+
+    const filteredClients = clientPresets.filter(c => !cQuery || c.name.toLowerCase().includes(cQuery) || (c.phone && c.phone.includes(cQuery)) || (c.address && c.address.toLowerCase().includes(cQuery)));
+    if (!filteredClients.length) {
+      clientHtml = '<span style="font-size:11px; color:#718096;">No client presets found.</span>';
+    } else {
+      filteredClients.forEach((c) => {
+        const origIdx = clientPresets.indexOf(c);
+        const phoneStr = c.phone ? ` (${c.phone})` : '';
+        clientHtml += `
+          <div class="mgr-item">
+            <span><strong>${c.name}</strong>${phoneStr}</span>
+            <button type="button" class="danger" style="padding:2px 6px; font-size:10px;" onclick="deleteClientPreset(${origIdx})">🗑️ Delete</button>
+          </div>`;
+      });
+    }
+    cList.innerHTML = clientHtml;
+
+    // Render Images
+    const imgList = document.getElementById('mgrImgList');
+    let imgHtml = imageLibrary.length ? '' : '<span style="font-size:11px; color:#718096;">No images in library.</span>';
+    imageLibrary.forEach((img, i) => {
+      imgHtml += `
+        <div class="mgr-item">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img src="${img.dataUrl}" style="width:28px; height:28px; object-fit:cover; border-radius:3px;" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'28\' height=\'28\'><rect width=\'28\' height=\'28\' fill=\'%23cbd5e0\'/></svg>'">
+            <span>${img.name}</span>
+          </div>
+          <button type="button" class="danger" style="padding:2px 6px; font-size:10px;" onclick="deleteLibraryImage(${i})">🗑️ Delete</button>
+        </div>`;
+    });
+    imgList.innerHTML = imgHtml;
+
+    // Render Saved Quotes List for Deletion
+    const qList = document.getElementById('mgrQuotesList');
+    const qQuery = (document.getElementById('mgrQuotesSearch')?.value || '').toLowerCase().trim();
+    const quoteKeys = Object.keys(savedQuotes);
+    let quoteHtml = '';
+
+    const filteredQuoteKeys = quoteKeys.filter(key => {
+      const q = savedQuotes[key];
+      const town = getTownFromAddress(q.clientAddress);
+      const townStr = town ? ` ${town}` : '';
+      const refStr = q.quoteRef || 'PL-1001';
+      const label = `${q.clientName}${townStr} ${refStr}`;
+      return !qQuery || label.toLowerCase().includes(qQuery) || key.toLowerCase().includes(qQuery);
+    });
+
+    if (!filteredQuoteKeys.length) {
+      quoteHtml = '<span style="font-size:11px; color:#718096;">No saved quotes found.</span>';
+    } else {
+      filteredQuoteKeys.forEach(key => {
+        const q = savedQuotes[key];
+        const town = getTownFromAddress(q.clientAddress);
+        const townStr = town ? ` ${town}` : '';
+        const refStr = q.quoteRef || 'PL-1001';
+        quoteHtml += `
+          <div class="mgr-item">
+            <span><strong>${q.clientName}${townStr}</strong> (${refStr})</span>
+            <button type="button" class="danger" style="padding:2px 6px; font-size:10px;" onclick="deleteSavedQuoteFile('${key}')">🗑️ Delete Quote</button>
+          </div>`;
+      });
+    }
+    qList.innerHTML = quoteHtml;
+  }
+
+  function addPresetItem(index) {
+    if (index === "" || index === undefined) return;
+    const p = presets[index];
+    if (!p) return;
+    currentItems.push({ id: Date.now(), title: p.title, desc: p.desc, cost: '', markup: '', clientPrice: '', image: "" });
+    renderItemsEditor();
+    updatePreview();
+    document.getElementById('presetSelect').value = "";
+  }
+
+  function addItem() {
+    currentItems.push({ id: Date.now(), title: "Custom Service", desc: "• ", cost: '', markup: '', clientPrice: '', image: "" });
+    renderItemsEditor();
+    updatePreview();
+  }
+
+  function removeItem(id) {
+    currentItems = currentItems.filter(item => item.id !== id);
+    renderItemsEditor();
+    updatePreview();
+  }
+
+  /* TERMS MANAGEMENT FUNCTIONS */
+  function addPresetTerm(index) {
+    if (index === "" || index === undefined) return;
+    const t = termPresets[index];
+    if (!t) return;
+    currentTerms.push({ id: Date.now(), title: t.title, text: t.text });
+    renderTermsEditor();
+    updatePreview();
+    document.getElementById('termPresetSelect').value = "";
+  }
+
+  function addCustomTerm() {
+    currentTerms.push({ id: Date.now(), title: "Additional Condition", text: "" });
+    renderTermsEditor();
+    updatePreview();
+  }
+
+  function removeTerm(id) {
+    currentTerms = currentTerms.filter(t => t.id !== id);
+    renderTermsEditor();
+    updatePreview();
+  }
+
+  function updateTerm(index, field, value) {
+    currentTerms[index][field] = value;
+    updatePreview();
+  }
+
+  function renderTermsEditor() {
+    const container = document.getElementById('termsContainer');
+    container.innerHTML = '';
+
+    currentTerms.forEach((term, i) => {
+      container.innerHTML += `
+        <div class="item-card" style="background: #fff; border-left: 4px solid var(--accent);">
+          <div class="form-group" style="margin-bottom: 6px;">
+            <input type="text" value="${term.title}" placeholder="Term Header (e.g. Payment Terms)" oninput="updateTerm(${i}, 'title', this.value)">
+          </div>
+          <div class="form-group" style="margin-bottom: 6px;">
+            <textarea rows="3" placeholder="Term / Note details..." oninput="updateTerm(${i}, 'text', this.value)">${term.text}</textarea>
+          </div>
+          <div style="display:flex; justify-content: flex-end; gap:5px;">
+            <button type="button" class="secondary" style="font-size:11px; padding:3px 8px;" onclick="saveTermToPreset(${i})">Save Term Preset</button>
+            <button type="button" class="danger" style="font-size:11px; padding:3px 8px;" onclick="removeTerm(${term.id})">🗑️ Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function handleDirectImageUpload(index, event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentItems[index].image = e.target.result;
+        renderItemsEditor();
+        updatePreview();
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function renderItemsEditor() {
+    const container = document.getElementById('itemsContainer');
+    container.innerHTML = '';
+    
+    currentItems.forEach((item, i) => {
+      let libOptions = '<option value="">-- Attach from Image Library --</option>';
+      imageLibrary.forEach((img, libIdx) => {
+        const isSelected = (item.image && item.image === img.dataUrl) ? 'selected' : '';
+        libOptions += `<option value="${libIdx}" ${isSelected}>${img.name}</option>`;
+      });
+
+      const costVal = (item.cost !== undefined && item.cost !== '') ? item.cost : '';
+      const markupVal = (item.markup !== undefined && item.markup !== '') ? item.markup : '';
+      const clientPriceVal = (item.clientPrice !== undefined && item.clientPrice !== '') ? item.clientPrice : '';
+
+      container.innerHTML += `
+        <div class="item-card">
+          <div class="form-group">
+            <input type="text" value="${item.title}" placeholder="Title" oninput="updateItem(${i}, 'title', this.value)">
+          </div>
+          <div class="form-group">
+            <textarea rows="4" placeholder="Description" oninput="updateItem(${i}, 'desc', this.value)">${item.desc}</textarea>
+          </div>
+          
+          <div class="form-group" style="background:#edf2f7; padding:8px; border-radius:4px;">
+            <label>Item Sample Image</label>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:5px;">
+              <select onchange="attachLibraryImage(${i}, this.value)" style="flex:1;">${libOptions}</select>
+              <span style="font-size:11px;">OR</span>
+              <input type="file" accept="image/*" onchange="handleDirectImageUpload(${i}, event)" style="flex:1;">
+            </div>
+            ${item.image ? `
+              <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                <img src="${item.image}" class="item-img-preview" onerror="this.style.display='none'">
+                <button type="button" class="danger" style="padding:3px 6px; font-size:10px;" onclick="removeImage(${i})">Remove Image</button>
+              </div>
+            ` : ''}
+          </div>
+
+          <div class="row" style="align-items: flex-end; margin-bottom: 8px;">
+            <div>
+              <label>Internal Cost (£)</label>
+              <input type="number" id="item-cost-${i}" value="${costVal}" step="0.01" placeholder="Optional" oninput="updateItemPricing(${i}, 'cost', this.value)">
+            </div>
+            <div>
+              <label>Markup (%)</label>
+              <input type="number" id="item-markup-${i}" value="${markupVal}" step="0.1" placeholder="Optional" oninput="updateItemPricing(${i}, 'markup', this.value)">
+            </div>
+            <div>
+              <label>Cost to Client (£)</label>
+              <input type="number" id="item-price-${i}" value="${clientPriceVal}" step="0.01" placeholder="0.00" oninput="updateItemPricing(${i}, 'clientPrice', this.value)" style="font-weight: bold; color: var(--primary);">
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content: flex-end; gap:5px;">
+            <button type="button" class="secondary" onclick="saveItemToPreset(${i})" title="Save text to Presets">Save Preset</button>
+            <button type="button" class="danger" onclick="removeItem(${item.id})">🗑️ Delete</button>
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  function updateItemPricing(i, field, val) {
+    const item = currentItems[i];
+    const costEl = document.getElementById(`item-cost-${i}`);
+    const markupEl = document.getElementById(`item-markup-${i}`);
+    const priceEl = document.getElementById(`item-price-${i}`);
+
+    if (field === 'clientPrice') {
+      item.clientPrice = val !== '' ? parseFloat(val) : '';
+      item.cost = '';
+      item.markup = '';
+      if (costEl) costEl.value = '';
+      if (markupEl) markupEl.value = '';
+    } else if (field === 'cost') {
+      item.cost = val !== '' ? parseFloat(val) : '';
+      if (item.cost !== '' && item.markup !== '' && !isNaN(item.cost) && !isNaN(item.markup)) {
+        item.clientPrice = parseFloat((item.cost * (1 + (item.markup / 100))).toFixed(2));
+      } else {
+        item.clientPrice = '';
+      }
+      if (priceEl) priceEl.value = item.clientPrice;
+    } else if (field === 'markup') {
+      item.markup = val !== '' ? parseFloat(val) : '';
+      if (item.cost !== '' && item.markup !== '' && !isNaN(item.cost) && !isNaN(item.markup)) {
+        item.clientPrice = parseFloat((item.cost * (1 + (item.markup / 100))).toFixed(2));
+      } else {
+        item.clientPrice = '';
+      }
+      if (priceEl) priceEl.value = item.clientPrice;
+    }
+    updatePreview();
+  }
+
+  function attachLibraryImage(itemIndex, libIndex) {
+    if (libIndex === "") {
+      currentItems[itemIndex].image = "";
+    } else {
+      currentItems[itemIndex].image = imageLibrary[libIndex].dataUrl;
+    }
+    renderItemsEditor();
+    updatePreview();
+  }
+
+  function removeImage(index) {
+    currentItems[index].image = "";
+    renderItemsEditor();
+    updatePreview();
+  }
+
+  function updateItem(index, field, value) {
+    currentItems[index][field] = value;
+    updatePreview();
+  }
+
+  function updatePreview() {
+    const ref = document.getElementById('quoteRef').value || 'PL-1001';
+    const name = document.getElementById('clientName').value.trim();
+    const phone = document.getElementById('clientPhone').value.trim();
+    const address = document.getElementById('clientAddress').value;
+    const postcode = getPostcodeFromAddress(address);
+    const dateStr = new Date().toLocaleDateString('en-GB');
+
+    let parts = [];
+    if (name) parts.push(`<strong style="color: #1a202c;">${name}</strong>`);
+    if (postcode) parts.push(`<span>${postcode}</span>`);
+    if (phone) parts.push(`<span>Tel: ${phone}</span>`);
+    parts.push(`<strong>${dateStr}</strong>`);
+    parts.push(`Quote Ref: <span style="font-weight: bold; color: var(--primary);">${ref}</span>`);
+
+    document.getElementById('metaBar').innerHTML = parts.join(' <span style="color: #cbd5e0; margin: 0 4px;">|</span> ');
+    
+    document.getElementById('prevIntro').innerText = document.getElementById('quoteIntro').value;
+
+    // Render Preview Scope Items
+    const tbody = document.getElementById('prevItemsBody');
+    tbody.innerHTML = '';
+    
+    let baseCostSum = 0;
+    let subtotal = 0;
+
+    currentItems.forEach(item => {
+      const itemCost = (item.cost !== '' && !isNaN(item.cost)) ? parseFloat(item.cost) : 0;
+      const itemPrice = (item.clientPrice !== '' && !isNaN(item.clientPrice)) ? parseFloat(item.clientPrice) : 0;
+
+      baseCostSum += itemCost;
+      subtotal += itemPrice;
+      
+      const imgTag = item.image ? `<img src="${item.image}" class="doc-item-img">` : '';
+
+      tbody.innerHTML += `
+        <tr>
+          <td>
+            <div class="item-cell-container">
+              <div class="item-text">
+                <strong style="font-size: 14px; color: #1a202c;">${item.title}</strong><br>
+                <span style="font-size: 12px; color: #4a5568;">${item.desc.replace(/\n/g, '<br>')}</span>
+              </div>
+              ${imgTag}
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    const profitSum = subtotal - baseCostSum;
+
+    // Render Internal Financial Stats in Left Sidebar
+    if (document.getElementById('calcBaseCost')) {
+      document.getElementById('calcBaseCost').innerText = `£${baseCostSum.toFixed(2)}`;
+    }
+    if (document.getElementById('calcProfit')) {
+      document.getElementById('calcProfit').innerText = `+£${profitSum.toFixed(2)}`;
+    }
+    if (document.getElementById('calcClientSubtotal')) {
+      document.getElementById('calcClientSubtotal').innerText = `£${subtotal.toFixed(2)}`;
+    }
+
+    const vat = subtotal * 0.20;
+    const total = subtotal + vat;
+
+    document.getElementById('prevSubtotal').innerText = `£${subtotal.toFixed(2)}`;
+    document.getElementById('prevVat').innerText = `£${vat.toFixed(2)}`;
+    document.getElementById('prevTotal').innerText = `£${total.toFixed(2)}`;
+
+    // Render Preview Notes & Terms
+    const prevNotes = document.getElementById('prevNotes');
+    let termsHtml = '';
+    currentTerms.forEach(t => {
+      if (t.text && t.text.trim()) {
+        termsHtml += `
+          <div class="doc-term-block" style="margin-bottom: 8px;">
+            ${t.title ? `<strong style="color: #2d3748; font-size: 11px;">${t.title}: </strong>` : ''}
+            <span style="font-size: 11px; color: #4a5568;">${t.text.replace(/\n/g, '<br>')}</span>
+          </div>`;
+      }
+    });
+    prevNotes.innerHTML = termsHtml;
+  }
+
+  function sendEmail() {
+    const client = document.getElementById('clientName').value;
+    const ref = document.getElementById('quoteRef').value;
+    const total = document.getElementById('prevTotal').innerText;
+    const subject = encodeURIComponent(`Petrie Landscaping Quote - ${ref}`);
+    const body = encodeURIComponent(`Hi ${client},\n\nPlease find attached your landscaping quote (${ref}) for the total value of ${total}.\n\nKind regards,\nPetrie Landscaping Ltd`);
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  }
+
+  window.onload = init;
+</script>
+</body>
+</html>

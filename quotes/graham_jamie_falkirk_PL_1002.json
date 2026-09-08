@@ -1,0 +1,17 @@
+{
+  "quoteRef": "PL-1002",
+  "clientName": "Graham Jamie",
+  "clientPhone": "",
+  "clientAddress": "the kelpies\nfalkirk\nFK7 0PP",
+  "quoteIntro": "Dear Graham,\nThank you for the opportunity to provide a quote for your upcoming groundwork.\nPlease find your itemised quotation below. I hope it meets your requirements, and I\u2019d be delighted to discuss any questions you may have.",
+  "notes": "Price based on normal ground conditions. Any unforeseen underground services, drainage issues or unexpected works will be discussed prior to execution.",
+  "items": [
+    {
+      "id": 1787730307158,
+      "title": "Manhole Cover Adjustments",
+      "desc": "\u2022 Supply and install recessed manhole covers\n\u2022 Adjust chamber heights to suit new finished paving levels\n\u2022 Infill covers with matching porcelain paving for a seamless finish",
+      "cost": 0,
+      "image": ""
+    }
+  ]
+}

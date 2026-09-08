@@ -1,0 +1,100 @@
+{
+  "quoteRef": "PL-1001",
+  "clientName": "David Martin",
+  "clientPhone": "",
+  "clientAddress": "17 Borestone Place\nStirling\nFK7 0PP",
+  "quoteIntro": "Dear David,\nThank you for the opportunity to provide a quote for your upcoming groundwork.\nPlease find your itemised quotation below. I hope it meets your requirements, and I\u2019d be delighted to discuss any questions you may have.",
+  "terms": [
+    {
+      "id": 1787761280461,
+      "title": "General Notes & Terms",
+      "text": "Price based on normal ground conditions. Any unforeseen underground services, drainage issues or unexpected works will be discussed prior to execution."
+    },
+    {
+      "id": 1787761285597,
+      "title": "Lawn & Planting Care",
+      "text": "Aftercare: Freshly laid turf and new planting require daily watering by the client following installation. Petrie Landscapes LTD cannot be held responsible for foliage degradation due to lack of watering."
+    },
+    {
+      "id": 1787761287551,
+      "title": "Payment Milestones (25% / 50% / 25%)",
+      "text": "Payment Terms: 25% deposit required upon order confirmation, 50% progress payment due midway through works, and 25% final balance due upon completion."
+    },
+    {
+      "id": 1787761290125,
+      "title": "Quote Expiry Date (30 Days)",
+      "text": "Quote Expiry: This quotation is valid for 30 days from the date of issue. Prices may be subject to review thereafter due to material cost fluctuations."
+    },
+    {
+      "id": 1787761292000,
+      "title": "Site Access & Utilities",
+      "text": "Site Access: Client to provide clear, uninterrupted access to the working area, as well as access to working electricity and a mains water supply throughout project duration."
+    },
+    {
+      "id": 1787761293701,
+      "title": "Standard Ground Conditions",
+      "text": "Price based on normal ground conditions. Any unforeseen underground services, drainage issues, or unexpected concrete/rock excavation will be discussed prior to execution."
+    },
+    {
+      "id": 1787761306967,
+      "title": "Work Duration and Start Date",
+      "text": "We estimate the work will take 3 weeks weather permitting.Our speculasated start date is 25th December 2027\n"
+    }
+  ],
+  "items": [
+    {
+      "id": 1787730307158,
+      "title": "Manhole Cover Adjustments",
+      "desc": "\u2022 Supply and install recessed manhole covers\n\u2022 Adjust chamber heights to suit new finished paving levels\n\u2022 Infill covers with matching porcelain paving for a seamless finish",
+      "cost": 0,
+      "image": "",
+      "markup": "",
+      "clientPrice": ""
+    },
+    {
+      "id": 1787761311391,
+      "title": "Steps Construction & Cladding",
+      "desc": "\u2022 Construct new steps at the front door\n\u2022 Clad existing steps leading up to the property from the pavement in porcelain to match surrounding areas",
+      "cost": "",
+      "markup": "",
+      "clientPrice": 4000,
+      "image": ""
+    },
+    {
+      "id": 1787761315671,
+      "title": "Bespoke Porcelain Cladded Raised Planters",
+      "desc": "\u2022 Install concrete things\n\u2022 Block work to create planter beds\n\u2022 Choice of porcelain cladding for facings of planter\n\u2022 Porcelain coping to match paving areas\n\u2022 Each planter to be lined with dpc\n\u2022 Planters to be infilled with premium top soil\n\u2022 Grouting with tuff joint utility\n\u2022 Corners of porcelain beds for the cladding to be mitred for a clean seem-less finish",
+      "cost": "",
+      "markup": "",
+      "clientPrice": "",
+      "image": ""
+    },
+    {
+      "id": 1787761317646,
+      "title": "Manhole Cover Adjustments",
+      "desc": "\u2022 Supply and install recessed manhole covers\n\u2022 Adjust chamber heights to suit new finished paving levels\n\u2022 Infill covers with matching porcelain paving for a seamless finish",
+      "cost": "",
+      "markup": "",
+      "clientPrice": "",
+      "image": ""
+    },
+    {
+      "id": 1787761319190,
+      "title": "Replacing Main Step Entrance from Roadside",
+      "desc": "\u2022 Removal and excavation of existing steps\n\u2022 Type 1 infill for each step\n\u2022 New foundation for new block work for steps\n\u2022 Block work to create treads for bigger steps approx 400mm\n\u2022 Materials and waste removal\n\u2022 Labour for 3 guys",
+      "cost": "",
+      "markup": "",
+      "clientPrice": "",
+      "image": ""
+    },
+    {
+      "id": 1787761321077,
+      "title": "Lawn Installation (Approx. 45 sqm)",
+      "desc": "\u2022 Prepare and level ground for new lawn area\n\u2022 Supply and install new turf\n\u2022 Install porcelain plank edging to match paving borders for continuity\n\u2022 added new line",
+      "cost": "",
+      "markup": "",
+      "clientPrice": "",
+      "image": ""
+    }
+  ]
+}
