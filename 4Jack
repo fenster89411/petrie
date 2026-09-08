@@ -1,0 +1,15 @@
+To test PetrieQuote.app on macOS, download the compiled ZIP artifact from GitHub, extract it directly on the Mac, and clear Apple's internet download quarantine flag.
+1.Download the Build Artifact:GitHub Actions.Scroll to the Artifacts section at the bottom of your completed GitHub Actions run page and click 
+PetrieQuote-macOS to download the archive.Verification: Check your Mac's Downloads folder to confirm PetrieQuote-macOS.zip is saved on disk.
+
+2.Extract the App Bundle on macOS:Finder.Double-click PetrieQuote-macOS.zip inside macOS Finder to extract the application. 
+Always extract the archive on macOS rather than Windows, as Windows strips the file execution attributes required by macOS.
+Verification: Confirm you see an application file named PetrieQuote (or PetrieQuote.app) displaying your app's icon.
+
+3.Bypass macOS Gatekeeper Quarantine:Terminal (30 secs).Because the executable was built on a cloud runner without a paid Apple Developer certificate, macOS places it in security quarantine on first download. 
+Open Terminal (Cmd + Space $\rightarrow$ type Terminal $\rightarrow$ press Enter) and run:Bashxattr -dr com.apple.quarantine ~/Downloads/PetrieQuote.app
+
+(If your app is in a folder other than Downloads, type xattr -dr com.apple.quarantine  
+with a trailing space and drag PetrieQuote.app into the Terminal window.)
+
+Verification: Terminal will return to a fresh prompt line without displaying any error messages.
