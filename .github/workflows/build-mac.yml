@@ -25,18 +25,35 @@ jobs:
 
       - name: Build macOS App (Universal2)
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name "PetrieQuote" --target-architecture universal2 --add-data "index.html:." SERVER.PY
-          
-          # Stage assets, logo, and databases into the macOS .app bundle
+          pyinstaller \
+            --noconfirm \
+            --onedir \
+            --windowed \
+            --name "PetrieQuote" \
+            --target-architecture universal2 \
+            --add-data "index.html:." \
+            SERVER.PY
+
           mkdir -p dist/PetrieQuote.app/Contents/MacOS/assets
           cp -r assets/* dist/PetrieQuote.app/Contents/MacOS/assets/ 2>/dev/null || true
           cp logo.png dist/PetrieQuote.app/Contents/MacOS/ 2>/dev/null || true
           cp clients.json presets.json terms.json images.json dist/PetrieQuote.app/Contents/MacOS/ 2>/dev/null || true
 
+      - name: Re-sign App
+        run: |
+          codesign --force --deep --sign - dist/PetrieQuote.app
+          codesign --verify --deep --strict --verbose=4 dist/PetrieQuote.app
+
+      - name: Check Symlinks
+        run: |
+          find dist/PetrieQuote.app -type l -print
+
       - name: Compress App Bundle
         run: |
           cd dist
-          zip -r PetrieQuote-macOS.zip PetrieQuote.app
+          ditto -c -k --sequesterRsrc --keepParent \
+            PetrieQuote.app \
+            PetrieQuote-macOS.zip
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
