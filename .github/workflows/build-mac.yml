@@ -1,13 +1,22 @@
-name: Build macOS Executable
+name: Build Multi-Architecture macOS Apps
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
-  build-mac:
-    runs-on: macos-latest
+  build-macos:
+    name: Build macOS (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - arch: Apple-Silicon
+            runner: macos-latest
+            artifact_name: PetrieQuote-macOS-AppleSilicon
+          - arch: Intel
+            runner: macos-15-intel
+            artifact_name: PetrieQuote-macOS-Intel
 
     steps:
       - name: Checkout Repository
@@ -18,37 +27,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install PyInstaller
+      - name: Install Dependencies
         run: |
-          python3 -m pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install pyinstaller
 
-      - name: Build macOS App
+      - name: Build Executable with PyInstaller
         run: |
           pyinstaller --noconfirm --onedir --windowed --name "PetrieQuote" --add-data "index.html:." SERVER.PY
-          
-          # 1. Stage into Contents/MacOS/
-          mkdir -p dist/PetrieQuote.app/Contents/MacOS/assets
-          mkdir -p dist/PetrieQuote.app/Contents/MacOS/images
-          cp -r assets/* dist/PetrieQuote.app/Contents/MacOS/assets/ 2>/dev/null || true
-          cp -r images/* dist/PetrieQuote.app/Contents/MacOS/images/ 2>/dev/null || true
-          cp logo.* Logo.* LOGO.* dist/PetrieQuote.app/Contents/MacOS/ 2>/dev/null || true
-          cp clients.json presets.json terms.json images.json dist/PetrieQuote.app/Contents/MacOS/ 2>/dev/null || true
-
-          # 2. Stage into Contents/Resources/ (where index.html resides)
-          mkdir -p dist/PetrieQuote.app/Contents/Resources/assets
-          mkdir -p dist/PetrieQuote.app/Contents/Resources/images
-          cp -r assets/* dist/PetrieQuote.app/Contents/Resources/assets/ 2>/dev/null || true
-          cp -r images/* dist/PetrieQuote.app/Contents/Resources/images/ 2>/dev/null || true
-          cp logo.* Logo.* LOGO.* dist/PetrieQuote.app/Contents/Resources/ 2>/dev/null || true
 
       - name: Compress App Bundle
         run: |
           cd dist
-          zip -r PetrieQuote-macOS.zip PetrieQuote.app
+          zip -r ${{ matrix.artifact_name }}.zip PetrieQuote.app
 
-      - name: Upload Artifact
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: PetrieQuote-macOS
-          path: dist/PetrieQuote-macOS.zip
+          name: ${{ matrix.artifact_name }}
+          path: dist/${{ matrix.artifact_name }}.zip
