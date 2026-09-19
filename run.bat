@@ -1,2 +1,2 @@
 py server.py
-PAUSe 0
+PAUSE 5

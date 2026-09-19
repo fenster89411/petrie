@@ -5,6 +5,10 @@ import os
 import sys
 import webbrowser
 import base64
+import platform
+import subprocess
+import zipfile
+from datetime import datetime
 
 # Prevent crashes in PyInstaller --windowed mode where sys.stdout/stderr are None
 if sys.stdout is None:
@@ -24,6 +28,7 @@ os.chdir(BASE_DIR)
 os.makedirs('quotes', exist_ok=True)
 os.makedirs('QuotePDFs', exist_ok=True)
 os.makedirs('images', exist_ok=True)
+os.makedirs('Backups', exist_ok=True)
 
 PORT = 8000
 
@@ -60,7 +65,7 @@ class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(length)
-        req = json.loads(body.decode('utf-8'))
+        req = json.loads(body.decode('utf-8')) if body else {}
 
         if self.path == '/api/save_config':
             if 'presets' in req: self.write_json('presets.json', req['presets'])
@@ -95,6 +100,62 @@ class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
                 if os.path.exists(filepath):
                     os.remove(filepath)
             self.send_json_response({'status': 'ok'})
+
+        elif self.path == '/api/open_pdf_folder':
+            pdf_dir = os.path.join(BASE_DIR, 'QuotePDFs')
+            os.makedirs(pdf_dir, exist_ok=True)
+            system_os = platform.system()
+            if system_os == 'Windows':
+                os.startfile(pdf_dir)
+            elif system_os == 'Darwin':
+                subprocess.run(['open', pdf_dir])
+            else:
+                subprocess.run(['xdg-open', pdf_dir])
+            self.send_json_response({'status': 'ok'})
+
+        elif self.path == '/api/create_backup':
+            backup_dir = os.path.join(BASE_DIR, 'Backups')
+            os.makedirs(backup_dir, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            zip_filename = f"Petrie_Backup_{timestamp}.zip"
+            zip_path = os.path.join(backup_dir, zip_filename)
+
+            with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for json_file in ['presets.json', 'terms.json', 'clients.json', 'images.json']:
+                    if os.path.exists(json_file):
+                        zipf.write(json_file, json_file)
+                for folder in ['quotes', 'QuotePDFs', 'images']:
+                    if os.path.exists(folder):
+                        for root, dirs, files in os.walk(folder):
+                            for file in files:
+                                file_path = os.path.join(root, file)
+                                arcname = os.path.relpath(file_path, BASE_DIR)
+                                zipf.write(file_path, arcname)
+
+            system_os = platform.system()
+            if system_os == 'Windows':
+                os.startfile(backup_dir)
+            elif system_os == 'Darwin':
+                subprocess.run(['open', backup_dir])
+
+            self.send_json_response({'status': 'ok', 'filename': zip_filename})
+
+        elif self.path == '/api/restore_backup':
+            zip_b64 = req.get('zipData', '')
+            if zip_b64:
+                if ',' in zip_b64:
+                    zip_b64 = zip_b64.split(',')[1]
+                zip_bytes = base64.b64decode(zip_b64)
+                temp_zip = os.path.join(BASE_DIR, 'temp_restore.zip')
+                with open(temp_zip, 'wb') as f:
+                    f.write(zip_bytes)
+                with zipfile.ZipFile(temp_zip, 'r') as zipf:
+                    zipf.extractall(BASE_DIR)
+                if os.path.exists(temp_zip):
+                    os.remove(temp_zip)
+                self.send_json_response({'status': 'ok'})
+            else:
+                self.send_json_response({'status': 'error'})
 
         else:
             self.send_error(404, "Endpoint not found")

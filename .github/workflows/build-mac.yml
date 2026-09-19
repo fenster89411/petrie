@@ -34,7 +34,11 @@ jobs:
 
       - name: Build Executable with PyInstaller
         run: |
-          pyinstaller --noconfirm --onedir --windowed --name "PetrieQuote" --add-data "index.html:." SERVER.PY
+          pyinstaller --noconfirm --onedir --windowed --name "PetrieQuote" \
+            --add-data "index.html:." \
+            --add-data "images:images" \
+            --add-data "assets:assets" \
+            SERVER.PY
 
       - name: Compress App Bundle
         run: |
