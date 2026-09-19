@@ -100,7 +100,50 @@
       padding-left: 20px;
       padding-right: 20px;
       border-bottom: 1px solid #e2e8f0;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    /* BOLD FORM SECTION TILES */
+    .form-section-box {
+      background: #ffffff;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .form-section-box h3 {
+      margin: -16px -16px 14px -16px;
+      padding: 10px 16px;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-bottom: none;
+    }
+
+    /* VISUAL HUN WARNING BANNER */
+    #hunWarningBanner {
+      display: none;
+      background: #e53e3e;
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-weight: 800;
+      font-size: 13px;
+      text-align: center;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      border: 2px solid #9b2c2c;
+      box-shadow: 0 2px 8px rgba(229, 62, 62, 0.4);
+      animation: alertPulse 1s infinite alternate;
+    }
+    @keyframes alertPulse {
+      from { background: #e53e3e; }
+      to { background: #c53030; }
     }
 
     /* RIGHT PREVIEW CONTAINER */
@@ -125,17 +168,24 @@
       box-sizing: border-box;
     }
     .manager-section {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 15px;
+      background: #ffffff;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      padding: 16px;
       margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      overflow: hidden;
     }
     .manager-section h4 {
-      margin-top: 0;
-      color: var(--primary);
-      border-bottom: 1px solid #cbd5e0;
-      padding-bottom: 6px;
+      margin: -16px -16px 14px -16px;
+      padding: 10px 16px;
+      background: var(--primary);
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-bottom: none;
     }
     
     .paper {
@@ -253,14 +303,49 @@
       margin-bottom: 6px;
       font-size: 12px;
     }
+
+    /* COLLAPSIBLE ACCORDION CARDS */
     .item-card {
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      padding: 12px;
+      background: #ffffff;
+      border: 1px solid #cbd5e0;
       border-radius: 6px;
       margin-bottom: 12px;
-      position: relative;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: border-color 0.2s ease;
     }
+    .item-card:hover {
+      border-color: var(--accent);
+    }
+    .item-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #edf2f7;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid transparent;
+      transition: background 0.15s ease;
+    }
+    .item-card-header:hover {
+      background: #e2e8f0;
+    }
+    .item-card:not(.collapsed) .item-card-header {
+      border-bottom-color: #cbd5e0;
+      background: #e2e8f0;
+    }
+    .toggle-icon {
+      font-size: 11px;
+      color: #4a5568;
+      display: inline-block;
+      width: 12px;
+    }
+    .item-card-body {
+      padding: 12px;
+      background: #ffffff;
+    }
+
     .item-img-preview {
       max-width: 70px;
       max-height: 50px;
@@ -405,8 +490,11 @@
       </div>
       
       <div class="folder-bar" style="margin-top: 12px;">
-        <div>
+        <div style="display:flex; align-items:center; justify-style:space-between; width:100%;">
           <span id="folderStatus" class="status-badge">Checking Server...</span>
+          <button type="button" class="secondary" onclick="openPdfFolder()" style="font-size: 11px; padding: 4px 8px; display:flex; align-items:center; gap:4px;">
+            📁 Open QuotePDFs Folder
+          </button>
         </div>
       </div>
 
@@ -418,61 +506,92 @@
       </div>
     </div>
 
-    <h3>Client Details & Quote Ref</h3>
-    
-    <div class="row">
-      <div class="form-group">
-        <label>Quote Ref No.</label>
-        <input type="text" id="quoteRef" value="PL-1001" oninput="updatePreview()" style="font-weight: bold; color: var(--primary);">
+    <!-- BOX 1: INTRODUCTORY MESSAGE -->
+    <div class="form-section-box">
+      <h3>💬 Introductory Message</h3>
+      <div class="form-group" style="margin-bottom: 0;">
+        <textarea id="quoteIntro" rows="4" placeholder="Introductory message..." oninput="updatePreview()"></textarea>
       </div>
+    </div>
+
+    <!-- BOX 2: CLIENT DETAILS & QUOTE REF -->
+    <div class="form-section-box">
+      <h3>👤 Client Details & Quote Ref</h3>
+      
+      <!-- VISUAL HUN WARNING BANNER -->
+      <div id="hunWarningBanner">
+        ⚠️ HUN WARNING DETECTED 🔴⚪🔵
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>Quote Ref No.</label>
+          <input type="text" id="quoteRef" value="PL-1001" oninput="updatePreview()" style="font-weight: bold; color: var(--primary);">
+        </div>
+        <div class="form-group">
+          <label>Select Saved Client</label>
+          <select id="clientPresetSelect" onchange="applyClientPreset(this.value)">
+            <option value="">-- Choose Saved Client --</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group">
+          <label>Client Name</label>
+          <input type="text" id="clientName" value="" placeholder="Client Name" oninput="handleClientNameInput()">
+        </div>
+        <div class="form-group">
+          <label>Telephone Number</label>
+          <input type="text" id="clientPhone" value="" placeholder="e.g., 07123 456789" oninput="updatePreview()">
+        </div>
+      </div>
+
       <div class="form-group">
-        <label>Select Saved Client</label>
-        <select id="clientPresetSelect" onchange="applyClientPreset(this.value)">
-          <option value="">-- Choose Saved Client --</option>
+        <label>Client Email Address</label>
+        <input type="email" id="clientEmail" value="" placeholder="e.g., client@example.com" oninput="updatePreview()">
+      </div>
+
+      <div class="form-group">
+        <label>Client Address (Line 2 used as Town/Area)</label>
+        <textarea id="clientAddress" rows="2" placeholder="Address..." oninput="updatePreview()"></textarea>
+      </div>
+
+      <button type="button" class="secondary" onclick="saveCurrentClientPreset()" style="width: 100%;">💾 Save Client to Presets</button>
+    </div>
+
+    <!-- BOX 3: LINE ITEMS -->
+    <div class="form-section-box">
+      <h3>🔨 Line Items</h3>
+      <div class="form-group">
+        <label>Add From Preset Library (Alphabetical)</label>
+        <select id="presetSelect" onchange="addPresetItem(this.value)">
+          <option value="">-- Choose a Preset --</option>
         </select>
       </div>
+
+      <div id="itemsContainer"></div>
+
+      <button onclick="addItem()" style="width: 100%; margin-bottom: 0;">+ Add Custom Line Item</button>
     </div>
 
-    <div class="row">
-      <div class="form-group">
-        <label>Client Name</label>
-        <input type="text" id="clientName" value="" placeholder="Client Name" oninput="handleClientNameInput()">
+    <!-- BOX 4: NOTES & TERMS -->
+    <div class="form-section-box">
+      <h3>📜 Notes & Terms</h3>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <select id="termPresetSelect" onchange="addPresetTerm(this.value)">
+          <option value="">-- Choose a term to add --</option>
+        </select>
       </div>
-      <div class="form-group">
-        <label>Telephone Number</label>
-        <input type="text" id="clientPhone" value="" placeholder="e.g., 07123 456789" oninput="updatePreview()">
-      </div>
+
+      <div id="termsContainer"></div>
+
+      <button type="button" onclick="addCustomTerm()" style="width: 100%; margin-bottom: 0;">+ Add Custom Term / Note</button>
     </div>
 
-    <div class="form-group">
-      <label>Client Address (Line 2 used as Town/Area)</label>
-      <textarea id="clientAddress" rows="3" placeholder="Address..." oninput="updatePreview()"></textarea>
-    </div>
-
-    <button type="button" class="secondary" onclick="saveCurrentClientPreset()" style="width: 100%; margin-bottom: 12px;">💾 Save Client to Presets</button>
-
-    <div class="form-group">
-      <label>Introductory Message (Free Text)</label>
-      <textarea id="quoteIntro" rows="4" placeholder="Introductory message..." oninput="updatePreview()"></textarea>
-    </div>
-
-    <hr>
-
-    <h3>Line Items</h3>
-    <div class="form-group">
-      <label>Add From Preset Library (Alphabetical)</label>
-      <select id="presetSelect" onchange="addPresetItem(this.value)">
-        <option value="">-- Choose a Preset --</option>
-      </select>
-    </div>
-
-    <div id="itemsContainer"></div>
-
-    <button onclick="addItem()" style="width: 100%; margin-bottom: 15px;">+ Add Custom Line Item</button>
-
-    <!-- INTERNAL PROFIT & COST SUMMARY CARD -->
-    <div style="background: #f8fafc; border: 1px solid #cbd5e0; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
-      <label style="color: var(--primary); margin-bottom: 6px;">🔒 Internal Financial Breakdown (Private)</label>
+    <!-- BOX 5: INTERNAL FINANCIAL BREAKDOWN (PRIVATE) -->
+    <div style="background: #f8fafc; border: 2px solid var(--primary); padding: 14px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.06);">
+      <label style="color: var(--primary); margin-bottom: 6px; font-weight: bold; display: block;">🔒 Internal Financial Breakdown (Private)</label>
       <div style="display: flex; justify-content: space-between; font-size: 12px; color: #4a5568;">
         <div>Base Cost: <strong id="calcBaseCost">£0.00</strong></div>
         <div>Profit Margin: <strong id="calcProfit" style="color: var(--success);">+£0.00</strong></div>
@@ -480,49 +599,81 @@
       </div>
     </div>
 
-    <hr>
-
-    <!-- PRESET-DRIVEN NOTES & TERMS -->
-    <h3>Notes & Terms</h3>
-    <div class="form-group">
-      <label>Add From Terms & Conditions Library</label>
-      <select id="termPresetSelect" onchange="addPresetTerm(this.value)">
-        <option value="">-- Choose a Term / Boilerplate --</option>
-      </select>
-    </div>
-
-    <div id="termsContainer"></div>
-
-    <button type="button" onclick="addCustomTerm()" style="width: 100%; margin-bottom: 15px;">+ Add Custom Term / Note</button>
-
     <!-- ACTION BUTTONS -->
     <div class="actions-bar">
-      <button onclick="saveQuoteToDisk(false)" style="flex: 1; min-width: 120px;" title="Overwrites the open quote">💾 Update Quote</button>
-      <button onclick="saveQuoteToDisk(true)" class="secondary" style="flex: 1; min-width: 120px;" title="Saves as a new reference number">➕ Save as New</button>
-      <button onclick="generatePdfToFolder()" class="success" style="flex: 1; min-width: 120px;">📄 Save PDF to Folder</button>
-      <button onclick="window.print()" class="secondary" style="flex: 1; min-width: 100px;">🖨️ Print</button>
-      <button onclick="sendEmail()" class="secondary" style="flex: 1; min-width: 100px;">✉️ Email</button>
+      <button onclick="saveQuoteToDisk(false)" style="flex: 1; min-width: 110px;" title="Saves changes to this quote file">💾 Save Quote</button>
+      <button onclick="saveQuoteToDisk(true)" class="secondary" style="flex: 1; min-width: 110px;" title="Saves as a new reference number copy">➕ Save as New Ref</button>
+      <button onclick="generatePdfToFolder()" class="success" style="flex: 1; min-width: 110px;">📄 Save as PDF</button>
+      <button onclick="window.print()" class="secondary" style="flex: 1; min-width: 90px;">🖨️ Print</button>
+      <button onclick="sendEmail()" class="secondary" style="flex: 1; min-width: 90px;">✉️ Email</button>
     </div>
   </div>
 
   <!-- VIEW 2: DEDICATED PRESET & QUOTE MANAGER SCREEN -->
   <div class="manager-panel" id="presetManagerView">
-    <h2>⚙️ Preset & Quote Manager</h2>
-    <p style="font-size: 12px; color: #718096; margin-bottom: 20px;">Add, edit, or delete item presets, terms & conditions boilerplates, image assets, client presets, and quote files from your local hard drive.</p>
+    <div style="margin-bottom: 20px;">
+      <h2 style="font-size: 18px; margin: 0; color: var(--primary);">⚙️ Preset & Quote Manager</h2>
+      <p style="font-size: 12px; color: #718096; margin-top: 4px; margin-bottom: 0;">Add, edit, or delete item presets, terms & conditions boilerplates, image assets, client presets, and quote files from your local hard drive.</p>
+    </div>
 
-    <!-- WORK ITEM PRESETS MANAGER -->
+    <!-- 1. DATA BACKUP & MIGRATION TILE -->
     <div class="manager-section">
-      <h4>🔨 Work Item Presets Library</h4>
-      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+      <h4>📦 Data Backup & Migration</h4>
+      <p style="font-size: 11px; color: #718096; margin-bottom: 12px;">
+        Bundle all saved quotes, clients, presets, images, and PDFs into a single ZIP file before updating or switching computers.
+      </p>
+      <div style="display: flex; gap: 10px;">
+        <button type="button" class="success" onclick="createDataBackup()" style="flex: 1; padding: 10px;">📦 Create Backup ZIP</button>
+        <label style="flex: 1; text-align: center; cursor: pointer; background: var(--primary); color: white; font-size: 12px; font-weight: bold; border-radius: 4px; padding: 10px; box-sizing: border-box;">
+          📥 Restore from Backup ZIP
+          <input type="file" id="restoreZipInput" accept=".zip" onchange="restoreDataBackup(event)" style="display: none;">
+        </label>
+      </div>
+    </div>
+
+    <!-- 2. CLIENT PRESETS MANAGER -->
+    <div class="manager-section">
+      <h4>👤 Saved Client Presets</h4>
+      <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+        <div class="row">
+          <div class="form-group">
+            <label>Client Name</label>
+            <input type="text" id="mgrClientName" placeholder="e.g., Sarah Jenkins">
+          </div>
+          <div class="form-group">
+            <label>Telephone</label>
+            <input type="text" id="mgrClientPhone" placeholder="e.g., 07123 456789">
+          </div>
+        </div>
         <div class="form-group">
-          <label id="presetFormLabel">Add New Work Preset</label>
+          <label>Client Email Address</label>
+          <input type="email" id="mgrClientEmail" placeholder="e.g., client@example.com">
+        </div>
+        <div class="form-group">
+          <label>Client Address</label>
+          <textarea id="mgrClientAddress" rows="2" placeholder="Street&#10;Town&#10;Postcode"></textarea>
+        </div>
+        <button type="button" onclick="handleAddClientPreset()" style="width: 100%;">Save Client Preset</button>
+      </div>
+
+      <strong>Saved Clients List</strong>
+      <input type="text" id="mgrClientSearch" placeholder="🔍 Search client presets..." oninput="renderPresetManagers()" style="margin-top: 6px; margin-bottom: 8px; font-size: 12px; padding: 6px;">
+      <div id="mgrClientList" style="max-height: 150px; overflow-y: auto;"></div>
+    </div>
+
+    <!-- 3. LINE ITEM PRESETS LIBRARY -->
+    <div class="manager-section">
+      <h4>🔨 Line Item Presets Library</h4>
+      <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+        <div class="form-group">
+          <label id="presetFormLabel">Add New Line Item Preset</label>
           <input type="text" id="mgrPresetTitle" placeholder="Preset Title (e.g., Timber Decking Construction)">
         </div>
         <div class="form-group">
           <textarea id="mgrPresetDesc" rows="4" placeholder="Description / specifications..."></textarea>
         </div>
         <div style="display: flex; gap: 6px;">
-          <button type="button" onclick="handleAddOrUpdateWorkPreset()" style="flex: 1;">Save Work Preset</button>
+          <button type="button" onclick="handleAddOrUpdateWorkPreset()" style="flex: 1;">Save Line Item Preset</button>
           <button type="button" class="secondary" id="cancelPresetEditBtn" onclick="clearWorkPresetForm()" style="display: none;">Cancel</button>
         </div>
       </div>
@@ -530,14 +681,14 @@
         <strong>Existing Presets (A–Z)</strong>
         <button type="button" class="secondary" style="font-size: 10px; padding: 2px 6px;" onclick="resetDefaultPresets()">Restore Defaults</button>
       </div>
-      <input type="text" id="mgrPresetSearch" placeholder="🔍 Search work presets..." oninput="renderPresetManagers()" style="margin-bottom: 8px; font-size: 12px; padding: 6px;">
+      <input type="text" id="mgrPresetSearch" placeholder="🔍 Search line item presets..." oninput="renderPresetManagers()" style="margin-bottom: 8px; font-size: 12px; padding: 6px;">
       <div id="mgrItemList" style="max-height: 200px; overflow-y: auto;"></div>
     </div>
 
-    <!-- TERMS & CONDITIONS PRESETS MANAGER -->
+    <!-- 4. TERMS & CONDITIONS PRESETS MANAGER -->
     <div class="manager-section">
       <h4>📜 Terms & Conditions Presets Library</h4>
-      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+      <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
         <div class="form-group">
           <label id="termPresetFormLabel">Add New Term / Boilerplate Preset</label>
           <input type="text" id="mgrTermTitle" placeholder="Header Title (e.g., Payment Terms 30/60/10)">
@@ -555,10 +706,10 @@
       <div id="mgrTermList" style="max-height: 180px; overflow-y: auto;"></div>
     </div>
 
-    <!-- IMAGE LIBRARY MANAGER -->
+    <!-- 5. IMAGE LIBRARY MANAGER -->
     <div class="manager-section">
       <h4>📷 Sample Image Library</h4>
-      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
+      <div style="background: #f8fafc; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
         <div class="form-group">
           <label>Image Name / Title</label>
           <input type="text" id="newImgTitle" placeholder="e.g., Grey Porcelain Sample">
@@ -587,33 +738,7 @@
       <div id="mgrImgList" style="max-height: 180px; overflow-y: auto; margin-top: 6px;"></div>
     </div>
 
-    <!-- CLIENT PRESETS MANAGER -->
-    <div class="manager-section">
-      <h4>👤 Saved Client Presets</h4>
-      <div style="background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0; margin-bottom: 12px;">
-        <div class="row">
-          <div class="form-group">
-            <label>Client Name</label>
-            <input type="text" id="mgrClientName" placeholder="e.g., Sarah Jenkins">
-          </div>
-          <div class="form-group">
-            <label>Telephone</label>
-            <input type="text" id="mgrClientPhone" placeholder="e.g., 07123 456789">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Client Address</label>
-          <textarea id="mgrClientAddress" rows="3" placeholder="Street&#10;Town&#10;Postcode"></textarea>
-        </div>
-        <button type="button" onclick="handleAddClientPreset()" style="width: 100%;">Save Client Preset</button>
-      </div>
-
-      <strong>Saved Clients List</strong>
-      <input type="text" id="mgrClientSearch" placeholder="🔍 Search client presets..." oninput="renderPresetManagers()" style="margin-top: 6px; margin-bottom: 8px; font-size: 12px; padding: 6px;">
-      <div id="mgrClientList" style="max-height: 150px; overflow-y: auto;"></div>
-    </div>
-
-    <!-- SAVED QUOTE FILES MANAGER -->
+    <!-- 6. SAVED QUOTE FILES MANAGER -->
     <div class="manager-section">
       <h4>📁 Saved Quote Files (Disk)</h4>
       <input type="text" id="mgrQuotesSearch" placeholder="🔍 Search saved quote files..." oninput="renderPresetManagers()" style="margin-bottom: 8px; font-size: 12px; padding: 6px;">
@@ -809,9 +934,10 @@
   let editingTermPresetIndex = -1;
   let toastTimer = null;
 
-  /* EASTER EGG AUDIO STATE (HIDDEN IN ASSETS FOLDER) */
+  /* EASTER EGG AUDIO STATE */
   let easterEggAudio = null;
   let easterEggTriggered = false;
+  let audioPlayPromise = null;
 
   // Unlock audio context on the user's first click anywhere on the page
   document.addEventListener('click', function unlockAudio() {
@@ -830,6 +956,74 @@
     renderTermPresetsDropdown();
     renderClientPresetsDropdown();
     renderPresetManagers();
+  }
+
+  /* CREATE DATA BACKUP ACTION */
+  async function createDataBackup() {
+    showToast("Packaging backup ZIP archive...");
+    try {
+      const res = await fetch('/api/create_backup', { method: 'POST' });
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`Backup created: Backups/${data.filename}`);
+      } else {
+        showToast("Failed to generate backup file.");
+      }
+    } catch(e) {
+      showToast("Error connecting to server for backup.");
+    }
+  }
+
+  /* RESTORE DATA BACKUP ACTION WITH DATE VERIFICATION ALERT */
+  async function restoreDataBackup(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const backupDate = new Date(file.lastModified).toLocaleString('en-GB', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+
+    const warningMessage = `⚠️ WARNING: RESTORING FROM BACKUP FILE\n\n` +
+      `Backup File: ${file.name}\n` +
+      `Backup Date: ${backupDate}\n\n` +
+      `Restoring will overwrite current settings and quotes. ANY DATA CREATED OR UPDATED AFTER ${backupDate} WILL BE PERMANENTLY LOST.\n\n` +
+      `Are you sure you want to proceed with restoring from this backup?`;
+
+    if (!confirm(warningMessage)) {
+      event.target.value = '';
+      return;
+    }
+
+    showToast("Extracting backup archive...");
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      try {
+        const res = await fetch('/api/restore_backup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ zipData: e.target.result })
+        });
+        if (res.ok) {
+          showToast("Restore complete! Reloading application...");
+          setTimeout(() => { location.reload(); }, 1500);
+        } else {
+          showToast("Failed to restore backup.");
+        }
+      } catch(err) {
+        showToast("Error processing backup file.");
+      }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* OPEN QUOTE PDFS FOLDER ACTION */
+  async function openPdfFolder() {
+    try {
+      await fetch('/api/open_pdf_folder', { method: 'POST' });
+    } catch(e) {
+      showToast("PDFs are saved in the 'QuotePDFs' folder");
+    }
   }
 
   /* TOAST NOTIFICATION HELPER */
@@ -851,16 +1045,21 @@
   }
 
   function handleClientNameInput() {
-    const fullName = document.getElementById('clientName').value;
+    const nameInput = document.getElementById('clientName');
+    const fullName = nameInput ? nameInput.value : '';
     document.getElementById('quoteIntro').value = generateIntroText(fullName);
 
-    // EASTER EGG: Case-insensitive trigger for "Brian Laudrup"
-    if (fullName.trim().toLowerCase() === 'brian laudrup') {
+    const warningBanner = document.getElementById('hunWarningBanner');
+    const isLaudrup = fullName.trim().toLowerCase() === 'brian laudrup';
+
+    if (isLaudrup) {
+      if (warningBanner) warningBanner.style.display = 'block';
       if (!easterEggTriggered) {
         playEasterEggSound();
         easterEggTriggered = true;
       }
     } else {
+      if (warningBanner) warningBanner.style.display = 'none';
       stopEasterEggSound();
       easterEggTriggered = false;
     }
@@ -873,19 +1072,20 @@
       easterEggAudio = new Audio('assets/sound.mp3');
     }
     easterEggAudio.currentTime = 0;
-    const playPromise = easterEggAudio.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(err => {
+    audioPlayPromise = easterEggAudio.play();
+    if (audioPlayPromise !== undefined) {
+      audioPlayPromise.catch(err => {
         console.log('Audio playback error:', err);
-        showToast(`Audio Error: ${err.message || 'Click page first'}`);
       });
     }
   }
 
   function stopEasterEggSound() {
-    if (easterEggAudio) {
-      easterEggAudio.pause();
-      easterEggAudio.currentTime = 0;
+    if (easterEggAudio && audioPlayPromise) {
+      audioPlayPromise.then(() => {
+        easterEggAudio.pause();
+        easterEggAudio.currentTime = 0;
+      }).catch(() => {});
     }
   }
 
@@ -1095,16 +1295,18 @@
   function startNewQuote() {
     currentLoadedFile = null;
     currentItems = [];
-    currentTerms = [
-      { id: Date.now(), title: defaultTermPresets[0].title, text: defaultTermPresets[0].text }
-    ];
+    currentTerms = [];
 
     stopEasterEggSound();
     easterEggTriggered = false;
 
+    const warningBanner = document.getElementById('hunWarningBanner');
+    if (warningBanner) warningBanner.style.display = 'none';
+
     document.getElementById('quoteRef').value = getNextQuoteRef();
     document.getElementById('clientName').value = "";
     document.getElementById('clientPhone').value = "";
+    document.getElementById('clientEmail').value = "";
     document.getElementById('clientAddress').value = "";
     document.getElementById('quoteIntro').value = generateIntroText("");
     document.getElementById('quoteSearchInput').value = "";
@@ -1193,7 +1395,7 @@
     }
   }
 
-  async function autoSaveClientPresetIfNew(name, phone, address) {
+  async function autoSaveClientPresetIfNew(name, phone, address, email) {
     if (!name || name.trim() === "") return;
     const cleanName = name.trim();
     const existingIndex = clientPresets.findIndex(c => c.name.toLowerCase() === cleanName.toLowerCase());
@@ -1201,8 +1403,9 @@
     if (existingIndex >= 0) {
       clientPresets[existingIndex].phone = phone;
       clientPresets[existingIndex].address = address;
+      clientPresets[existingIndex].email = email;
     } else {
-      clientPresets.push({ name: cleanName, phone: phone, address: address });
+      clientPresets.push({ name: cleanName, phone: phone, address: address, email: email });
     }
 
     renderClientPresetsDropdown();
@@ -1214,13 +1417,14 @@
     const name = document.getElementById('clientName').value.trim();
     const phone = document.getElementById('clientPhone').value.trim();
     const address = document.getElementById('clientAddress').value.trim();
+    const email = document.getElementById('clientEmail').value.trim();
 
     if (!name) {
       showToast("Please enter a Client Name first!");
       return;
     }
 
-    await autoSaveClientPresetIfNew(name, phone, address);
+    await autoSaveClientPresetIfNew(name, phone, address, email);
     showToast(`Client "${name}" saved to presets!`);
   }
 
@@ -1228,6 +1432,7 @@
     const name = document.getElementById('clientName').value || "Unnamed";
     const phone = document.getElementById('clientPhone').value;
     const address = document.getElementById('clientAddress').value;
+    const email = document.getElementById('clientEmail').value;
     const town = getTownFromAddress(address);
     let ref = document.getElementById('quoteRef').value.trim();
 
@@ -1250,7 +1455,7 @@
     }
 
     if (name && name !== "Unnamed") {
-      await autoSaveClientPresetIfNew(name, phone, address);
+      await autoSaveClientPresetIfNew(name, phone, address, email);
     }
 
     let presetsUpdated = false;
@@ -1275,6 +1480,7 @@
       quoteRef: ref,
       clientName: name,
       clientPhone: phone,
+      clientEmail: email,
       clientAddress: address,
       quoteIntro: document.getElementById('quoteIntro').value,
       terms: currentTerms,
@@ -1302,15 +1508,18 @@
     document.getElementById('quoteRef').value = ref;
     document.getElementById('clientName').value = q.clientName || '';
     document.getElementById('clientPhone').value = q.clientPhone || '';
+    document.getElementById('clientEmail').value = q.clientEmail || '';
     document.getElementById('clientAddress').value = q.clientAddress || '';
     document.getElementById('quoteIntro').value = q.quoteIntro || generateIntroText(q.clientName);
 
+    handleClientNameInput();
+
     if (q.terms && Array.isArray(q.terms)) {
-      currentTerms = q.terms.map((t, idx) => ({ ...t, id: t.id || Date.now() + idx }));
+      currentTerms = q.terms.map((t, idx) => ({ ...t, collapsed: true, id: t.id || Date.now() + idx }));
     } else if (q.notes || q.quoteNotes) {
-      currentTerms = [{ id: Date.now(), title: "General Notes & Terms", text: q.notes || q.quoteNotes }];
+      currentTerms = [{ id: Date.now(), title: "General Notes & Terms", text: q.notes || q.quoteNotes, collapsed: true }];
     } else {
-      currentTerms = [{ id: Date.now(), title: defaultTermPresets[0].title, text: defaultTermPresets[0].text }];
+      currentTerms = [];
     }
 
     currentItems = (q.items || []).map((item, idx) => {
@@ -1319,6 +1528,7 @@
         cost: item.cost !== undefined && item.cost !== null ? item.cost : '',
         markup: item.markup !== undefined && item.markup !== null ? item.markup : '',
         clientPrice: item.clientPrice !== undefined && item.clientPrice !== null ? item.clientPrice : '',
+        collapsed: true,
         id: item.id || Date.now() + idx
       };
     });
@@ -1351,7 +1561,7 @@
 
   function renderTermPresetsDropdown() {
     const select = document.getElementById('termPresetSelect');
-    let html = '<option value="">-- Choose a Term / Boilerplate --</option>';
+    let html = '<option value="">-- Choose a term to add --</option>';
     termPresets.forEach((t, index) => {
       html += `<option value="${index}">${t.title}</option>`;
     });
@@ -1364,7 +1574,7 @@
     const p = presets[index];
     document.getElementById('mgrPresetTitle').value = p.title;
     document.getElementById('mgrPresetDesc').value = p.desc;
-    document.getElementById('presetFormLabel').innerText = "Edit Work Preset";
+    document.getElementById('presetFormLabel').innerText = "Edit Line Item Preset";
     document.getElementById('cancelPresetEditBtn').style.display = "inline-block";
   }
 
@@ -1372,7 +1582,7 @@
     editingPresetIndex = -1;
     document.getElementById('mgrPresetTitle').value = "";
     document.getElementById('mgrPresetDesc').value = "";
-    document.getElementById('presetFormLabel').innerText = "Add New Work Preset";
+    document.getElementById('presetFormLabel').innerText = "Add New Line Item Preset";
     document.getElementById('cancelPresetEditBtn').style.display = "none";
   }
 
@@ -1502,6 +1712,7 @@
   async function handleAddClientPreset() {
     const name = document.getElementById('mgrClientName').value.trim();
     const phone = document.getElementById('mgrClientPhone').value.trim();
+    const email = document.getElementById('mgrClientEmail')?.value.trim() || '';
     const address = document.getElementById('mgrClientAddress').value.trim();
 
     if (!name) return;
@@ -1509,13 +1720,15 @@
     const existingIndex = clientPresets.findIndex(c => c.name.toLowerCase() === name.toLowerCase());
     if (existingIndex >= 0) {
       clientPresets[existingIndex].phone = phone;
+      clientPresets[existingIndex].email = email;
       clientPresets[existingIndex].address = address;
     } else {
-      clientPresets.push({ name, phone, address });
+      clientPresets.push({ name, phone, email, address });
     }
 
     document.getElementById('mgrClientName').value = "";
     document.getElementById('mgrClientPhone').value = "";
+    if (document.getElementById('mgrClientEmail')) document.getElementById('mgrClientEmail').value = "";
     document.getElementById('mgrClientAddress').value = "";
 
     renderClientPresetsDropdown();
@@ -1539,11 +1752,10 @@
     const client = clientPresets[index];
     document.getElementById('clientName').value = client.name || '';
     document.getElementById('clientPhone').value = client.phone || '';
+    document.getElementById('clientEmail').value = client.email || '';
     document.getElementById('clientAddress').value = client.address || '';
 
-    document.getElementById('quoteIntro').value = generateIntroText(client.name);
-
-    updatePreview();
+    handleClientNameInput();
   }
 
   function toggleImgSourceInputs() {
@@ -1742,14 +1954,14 @@
     if (index === "" || index === undefined) return;
     const p = presets[index];
     if (!p) return;
-    currentItems.push({ id: Date.now(), title: p.title, desc: p.desc, cost: '', markup: '', clientPrice: '', image: "" });
+    currentItems.push({ id: Date.now(), title: p.title, desc: p.desc, cost: '', markup: '', clientPrice: '', image: "", collapsed: true });
     renderItemsEditor();
     updatePreview();
     document.getElementById('presetSelect').value = "";
   }
 
   function addItem() {
-    currentItems.push({ id: Date.now(), title: "Custom Service", desc: "• ", cost: '', markup: '', clientPrice: '', image: "" });
+    currentItems.push({ id: Date.now(), title: "Custom Service", desc: "• ", cost: '', markup: '', clientPrice: '', image: "", collapsed: false });
     renderItemsEditor();
     updatePreview();
   }
@@ -1760,19 +1972,33 @@
     updatePreview();
   }
 
-  /* TERMS MANAGEMENT FUNCTIONS */
+  function toggleItemCollapse(index) {
+    if (currentItems[index]) {
+      currentItems[index].collapsed = !currentItems[index].collapsed;
+      renderItemsEditor();
+    }
+  }
+
+  /* TERMS MANAGEMENT FUNCTIONS (COLLAPSIBLE ACCORDION) */
+  function toggleTermCollapse(index) {
+    if (currentTerms[index]) {
+      currentTerms[index].collapsed = !currentTerms[index].collapsed;
+      renderTermsEditor();
+    }
+  }
+
   function addPresetTerm(index) {
     if (index === "" || index === undefined) return;
     const t = termPresets[index];
     if (!t) return;
-    currentTerms.push({ id: Date.now(), title: t.title, text: t.text });
+    currentTerms.push({ id: Date.now(), title: t.title, text: t.text, collapsed: true });
     renderTermsEditor();
     updatePreview();
     document.getElementById('termPresetSelect').value = "";
   }
 
   function addCustomTerm() {
-    currentTerms.push({ id: Date.now(), title: "Additional Condition", text: "" });
+    currentTerms.push({ id: Date.now(), title: "Additional Condition", text: "", collapsed: false });
     renderTermsEditor();
     updatePreview();
   }
@@ -1785,6 +2011,10 @@
 
   function updateTerm(index, field, value) {
     currentTerms[index][field] = value;
+    if (field === 'title') {
+      const headerTitle = document.querySelector(`#term-card-${index} .term-header-title`);
+      if (headerTitle) headerTitle.textContent = value || 'Untitled Condition';
+    }
     updatePreview();
   }
 
@@ -1793,17 +2023,37 @@
     container.innerHTML = '';
 
     currentTerms.forEach((term, i) => {
+      if (term.collapsed === undefined) term.collapsed = true;
+
+      const collapsedClass = term.collapsed ? 'collapsed' : '';
+      const bodyDisplayStyle = term.collapsed ? 'display: none;' : 'display: block;';
+      const arrowSymbol = term.collapsed ? '►' : '▼';
+
       container.innerHTML += `
-        <div class="item-card" style="background: #fff; border-left: 4px solid var(--accent);">
-          <div class="form-group" style="margin-bottom: 6px;">
-            <input type="text" value="${term.title}" placeholder="Term Header (e.g. Payment Terms)" oninput="updateTerm(${i}, 'title', this.value)">
+        <div class="item-card ${collapsedClass}" id="term-card-${i}" style="border-left: 4px solid var(--accent);">
+          <!-- ACCORDION HEADER BAR -->
+          <div class="item-card-header" onclick="toggleTermCollapse(${i})">
+            <div style="display:flex; align-items:center; gap:8px; flex:1; overflow:hidden;">
+              <span class="toggle-icon">${arrowSymbol}</span>
+              <strong class="term-header-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:13px; color:#2d3748;">${term.title || 'Untitled Condition'}</strong>
+            </div>
           </div>
-          <div class="form-group" style="margin-bottom: 6px;">
-            <textarea rows="3" placeholder="Term / Note details..." oninput="updateTerm(${i}, 'text', this.value)">${term.text}</textarea>
-          </div>
-          <div style="display:flex; justify-content: flex-end; gap:5px;">
-            <button type="button" class="secondary" style="font-size:11px; padding:3px 8px;" onclick="saveTermToPreset(${i})">Save Term Preset</button>
-            <button type="button" class="danger" style="font-size:11px; padding:3px 8px;" onclick="removeTerm(${term.id})">🗑️ Delete</button>
+
+          <!-- COLLAPSIBLE FORM BODY -->
+          <div class="item-card-body" style="${bodyDisplayStyle}">
+            <div class="form-group" style="margin-bottom: 6px;">
+              <label>Term Header Title</label>
+              <input type="text" value="${term.title}" placeholder="Term Header (e.g. Payment Terms)" oninput="updateTerm(${i}, 'title', this.value)">
+            </div>
+            <div class="form-group" style="margin-bottom: 6px;">
+              <label>Boilerplate Text / Conditions</label>
+              <textarea rows="3" placeholder="Term / Note details..." oninput="updateTerm(${i}, 'text', this.value)">${term.text}</textarea>
+            </div>
+            <div style="display:flex; justify-content: flex-end; gap:5px; margin-top: 8px;">
+              <button type="button" class="secondary" onclick="toggleTermCollapse(${i})" style="font-size:11px; padding:3px 8px;">✔️ Done</button>
+              <button type="button" class="secondary" style="font-size:11px; padding:3px 8px;" onclick="saveTermToPreset(${i})">Save Term Preset</button>
+              <button type="button" class="danger" style="font-size:11px; padding:3px 8px;" onclick="removeTerm(${term.id})">🗑️ Delete</button>
+            </div>
           </div>
         </div>
       `;
@@ -1828,6 +2078,8 @@
     container.innerHTML = '';
     
     currentItems.forEach((item, i) => {
+      if (item.collapsed === undefined) item.collapsed = true;
+
       let libOptions = '<option value="">-- Attach from Image Library --</option>';
       imageLibrary.forEach((img, libIdx) => {
         const isSelected = (item.image && item.image === img.dataUrl) ? 'selected' : '';
@@ -1837,49 +2089,71 @@
       const costVal = (item.cost !== undefined && item.cost !== '') ? item.cost : '';
       const markupVal = (item.markup !== undefined && item.markup !== '') ? item.markup : '';
       const clientPriceVal = (item.clientPrice !== undefined && item.clientPrice !== '') ? item.clientPrice : '';
+      const formattedPrice = (clientPriceVal !== '' && !isNaN(clientPriceVal)) ? parseFloat(clientPriceVal).toFixed(2) : '0.00';
+
+      const collapsedClass = item.collapsed ? 'collapsed' : '';
+      const bodyDisplayStyle = item.collapsed ? 'display: none;' : 'display: block;';
+      const arrowSymbol = item.collapsed ? '►' : '▼';
 
       container.innerHTML += `
-        <div class="item-card">
-          <div class="form-group">
-            <input type="text" value="${item.title}" placeholder="Title" oninput="updateItem(${i}, 'title', this.value)">
-          </div>
-          <div class="form-group">
-            <textarea rows="4" placeholder="Description" oninput="updateItem(${i}, 'desc', this.value)">${item.desc}</textarea>
-          </div>
-          
-          <div class="form-group" style="background:#edf2f7; padding:8px; border-radius:4px;">
-            <label>Item Sample Image</label>
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom:5px;">
-              <select onchange="attachLibraryImage(${i}, this.value)" style="flex:1;">${libOptions}</select>
-              <span style="font-size:11px;">OR</span>
-              <input type="file" accept="image/*" onchange="handleDirectImageUpload(${i}, event)" style="flex:1;">
+        <div class="item-card ${collapsedClass}" id="item-card-${i}">
+          <!-- ACCORDION HEADER BAR -->
+          <div class="item-card-header" onclick="toggleItemCollapse(${i})">
+            <div style="display:flex; align-items:center; gap:8px; flex:1; overflow:hidden;">
+              <span class="toggle-icon">${arrowSymbol}</span>
+              <strong class="item-header-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:13px; color:#2d3748;">${item.title || 'Untitled Line Item'}</strong>
             </div>
-            ${item.image ? `
-              <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-                <img src="${item.image}" class="item-img-preview" onerror="this.style.display='none'">
-                <button type="button" class="danger" style="padding:3px 6px; font-size:10px;" onclick="removeImage(${i})">Remove Image</button>
+            <div style="display:flex; align-items:center; gap:10px; margin-left:10px; flex-shrink:0;">
+              <span class="item-header-price" style="font-weight: bold; color: var(--primary); font-size: 13px;">£${formattedPrice}</span>
+            </div>
+          </div>
+
+          <!-- COLLAPSIBLE FORM BODY -->
+          <div class="item-card-body" style="${bodyDisplayStyle}">
+            <div class="form-group">
+              <label>Item Title</label>
+              <input type="text" value="${item.title}" placeholder="Title" oninput="updateItem(${i}, 'title', this.value)">
+            </div>
+            <div class="form-group">
+              <label>Specification & Subtext</label>
+              <textarea rows="4" placeholder="Description" oninput="updateItem(${i}, 'desc', this.value)">${item.desc}</textarea>
+            </div>
+            
+            <div class="form-group" style="background:#edf2f7; padding:8px; border-radius:4px;">
+              <label>Item Sample Image</label>
+              <div style="display:flex; gap:8px; align-items:center; margin-bottom:5px;">
+                <select onchange="attachLibraryImage(${i}, this.value)" style="flex:1;">${libOptions}</select>
+                <span style="font-size:11px;">OR</span>
+                <input type="file" accept="image/*" onchange="handleDirectImageUpload(${i}, event)" style="flex:1;">
               </div>
-            ` : ''}
-          </div>
+              ${item.image ? `
+                <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
+                  <img src="${item.image}" class="item-img-preview" onerror="this.style.display='none'">
+                  <button type="button" class="danger" style="padding:3px 6px; font-size:10px;" onclick="removeImage(${i})">Remove Image</button>
+                </div>
+              ` : ''}
+            </div>
 
-          <div class="row" style="align-items: flex-end; margin-bottom: 8px;">
-            <div>
-              <label>Internal Cost (£)</label>
-              <input type="number" id="item-cost-${i}" value="${costVal}" step="0.01" placeholder="Optional" oninput="updateItemPricing(${i}, 'cost', this.value)">
+            <div class="row" style="align-items: flex-end; margin-bottom: 8px;">
+              <div>
+                <label>Internal Cost (£)</label>
+                <input type="number" id="item-cost-${i}" value="${costVal}" step="0.01" placeholder="Optional" oninput="updateItemPricing(${i}, 'cost', this.value)">
+              </div>
+              <div>
+                <label>Markup (%)</label>
+                <input type="number" id="item-markup-${i}" value="${markupVal}" step="0.1" placeholder="Optional" oninput="updateItemPricing(${i}, 'markup', this.value)">
+              </div>
+              <div>
+                <label>Cost to Client (£)</label>
+                <input type="number" id="item-price-${i}" value="${clientPriceVal}" step="0.01" placeholder="0.00" oninput="updateItemPricing(${i}, 'clientPrice', this.value)" style="font-weight: bold; color: var(--primary);">
+              </div>
             </div>
-            <div>
-              <label>Markup (%)</label>
-              <input type="number" id="item-markup-${i}" value="${markupVal}" step="0.1" placeholder="Optional" oninput="updateItemPricing(${i}, 'markup', this.value)">
-            </div>
-            <div>
-              <label>Cost to Client (£)</label>
-              <input type="number" id="item-price-${i}" value="${clientPriceVal}" step="0.01" placeholder="0.00" oninput="updateItemPricing(${i}, 'clientPrice', this.value)" style="font-weight: bold; color: var(--primary);">
-            </div>
-          </div>
 
-          <div style="display:flex; justify-content: flex-end; gap:5px;">
-            <button type="button" class="secondary" onclick="saveItemToPreset(${i})" title="Save text to Presets">Save Preset</button>
-            <button type="button" class="danger" onclick="removeItem(${item.id})">🗑️ Delete</button>
+            <div style="display:flex; justify-content: flex-end; gap:5px; margin-top: 10px;">
+              <button type="button" class="secondary" onclick="toggleItemCollapse(${i})" style="font-size:11px; padding:4px 8px;">✔️ Done</button>
+              <button type="button" class="secondary" onclick="saveItemToPreset(${i})" title="Save text to Presets" style="font-size:11px; padding:4px 8px;">Save Preset</button>
+              <button type="button" class="danger" onclick="removeItem(${item.id})" style="font-size:11px; padding:4px 8px;">🗑️ Delete</button>
+            </div>
           </div>
         </div>
       `;
@@ -1915,6 +2189,14 @@
       }
       if (priceEl) priceEl.value = item.clientPrice;
     }
+
+    // Live update header price badge
+    const headerPrice = document.querySelector(`#item-card-${i} .item-header-price`);
+    if (headerPrice) {
+      const p = item.clientPrice !== '' && !isNaN(item.clientPrice) ? parseFloat(item.clientPrice).toFixed(2) : '0.00';
+      headerPrice.textContent = `£${p}`;
+    }
+
     updatePreview();
   }
 
@@ -1936,6 +2218,10 @@
 
   function updateItem(index, field, value) {
     currentItems[index][field] = value;
+    if (field === 'title') {
+      const headerTitle = document.querySelector(`#item-card-${index} .item-header-title`);
+      if (headerTitle) headerTitle.textContent = value || 'Untitled Line Item';
+    }
     updatePreview();
   }
 
@@ -2026,11 +2312,12 @@
 
   function sendEmail() {
     const client = document.getElementById('clientName').value;
+    const email = (document.getElementById('clientEmail')?.value || '').trim();
     const ref = document.getElementById('quoteRef').value;
     const total = document.getElementById('prevTotal').innerText;
     const subject = encodeURIComponent(`Petrie Landscaping Quote - ${ref}`);
     const body = encodeURIComponent(`Hi ${client},\n\nPlease find attached your landscaping quote (${ref}) for the total value of ${total}.\n\nKind regards,\nPetrie Landscaping Ltd`);
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
   }
 
   window.onload = init;
