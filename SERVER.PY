@@ -16,7 +16,7 @@ if sys.stdout is None:
 if sys.stderr is None:
     sys.stderr = open(os.devnull, 'w')
 
-# Set working directory to the directory where the .exe or script is located
+# Set working directory to the directory where the .exe or executable is located
 if getattr(sys, 'frozen', False):
     BASE_DIR = os.path.dirname(sys.executable)
 else:
@@ -36,6 +36,21 @@ class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
+    def translate_path(self, path):
+        # First check standard path relative to CWD
+        standard_path = super().translate_path(path)
+        if os.path.exists(standard_path):
+            return standard_path
+        
+        # Fallback to PyInstaller internal bundle directory (_internal)
+        if hasattr(sys, '_MEIPASS'):
+            clean_path = path.split('?')[0].split('#')[0].lstrip('/')
+            alt_path = os.path.join(sys._MEIPASS, clean_path)
+            if os.path.exists(alt_path):
+                return alt_path
+
+        return standard_path
+
     def do_GET(self):
         if self.path == '/' or self.path == '':
             self.path = '/index.html'
@@ -50,16 +65,6 @@ class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
             }
             self.send_json_response(data)
         else:
-            if self.path == '/index.html' and not os.path.exists('index.html'):
-                if hasattr(sys, '_MEIPASS'):
-                    bundled_index = os.path.join(sys._MEIPASS, 'index.html')
-                    if os.path.exists(bundled_index):
-                        self.send_response(200)
-                        self.send_header('Content-Type', 'text/html; charset=utf-8')
-                        self.end_headers()
-                        with open(bundled_index, 'rb') as f:
-                            self.wfile.write(f.read())
-                        return
             super().do_GET()
 
     def do_POST(self):
