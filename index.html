@@ -375,12 +375,6 @@
       flex-shrink: 0;
     }
 
-    /* STRICT PAGE BREAK PROTECTION */
-    tr, .doc-table tr, .totals-box, .doc-section, .doc-footer-container, .doc-term-block {
-      page-break-inside: avoid !important;
-      break-inside: avoid !important;
-    }
-
     .totals-box { 
       margin-left: auto; 
       width: 260px; 
@@ -422,14 +416,45 @@
       color: #6c77a4;
       font-size: 12px;
       letter-spacing: 0.5px;
-      margin-bottom: 4px;
+      margin-bottom: 6px;
     }
-    .web-link {
-      color: var(--primary);
-      font-weight: bold;
-      font-size: 13px;
-      letter-spacing: 2px;
+
+    /* FOOTER VECTOR ICON LINKS ROW */
+    .footer-links-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .footer-social-icons {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #edf2f7;
+      border: 1px solid #cbd5e0;
       text-decoration: none;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+    }
+    .icon-badge:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    .icon-badge:hover svg path {
+      fill: #ffffff !important;
+    }
+    .icon-badge svg {
+      width: 14px;
+      height: 14px;
+      display: block;
     }
 
     .corner-flowers {
@@ -454,15 +479,11 @@
     }
 
     @media print {
-      tr, .doc-table tr, .totals-box, .doc-section, .doc-footer-container, .doc-term-block {
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
-      }
       .nav-tabs, .editor, .manager-panel, .actions-bar, .folder-bar, #toastNotification { display: none !important; }
       .preview-container { width: 100%; padding: 0; background: none; }
       .paper { box-shadow: none; width: 100%; max-width: none; padding: 0; margin-bottom: 0; }
       .doc-frame { border: 1px solid var(--border); padding: 30px; height: auto; }
-      .web-link { text-decoration: none; }
+      .icon-badge { text-decoration: none; }
     }
   </style>
 </head>
@@ -547,14 +568,15 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>Client Email Address</label>
-        <input type="email" id="clientEmail" value="" placeholder="e.g., client@example.com" oninput="updatePreview()">
-      </div>
-
-      <div class="form-group">
-        <label>Client Address (Line 2 used as Town/Area)</label>
-        <textarea id="clientAddress" rows="2" placeholder="Address..." oninput="updatePreview()"></textarea>
+      <div class="row">
+        <div class="form-group">
+          <label>Client Email Address</label>
+          <input type="email" id="clientEmail" value="" placeholder="e.g., client@example.com" oninput="updatePreview()">
+        </div>
+        <div class="form-group">
+          <label>Client Address (Line 2 = Town)</label>
+          <textarea id="clientAddress" rows="2" placeholder="Address..." oninput="updatePreview()" style="height: 35px; min-height: 35px; resize: vertical;"></textarea>
+        </div>
       </div>
 
       <button type="button" class="secondary" onclick="saveCurrentClientPreset()" style="width: 100%;">💾 Save Client to Presets</button>
@@ -791,7 +813,30 @@
           <div class="doc-footer-line"></div>
           <div class="doc-footer-content">
             <div class="tagline-text">"Elevating Outdoor Living"</div>
-            <a href="https://petrielandscaping.co.uk" target="_blank" class="web-link">PETRIELANDSCAPING.CO.UK</a>
+            
+            <div class="footer-links-bar">
+              <div class="footer-social-icons">
+                <!-- WEBSITE ICON -->
+                <a href="https://petrielandscaping.co.uk/" target="_blank" class="icon-badge" title="Website">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="#3b4876" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm7.93 9h-3.18a14.7 14.7 0 0 0-1.2-5.02A8.02 8.02 0 0 1 19.93 11zM12 4.07c.97 1.34 1.83 3.42 2.1 6.93H9.9c.27-3.51 1.13-5.59 2.1-6.93zM4.07 11h3.18a14.7 14.7 0 0 0 1.2-5.02A8.02 8.02 0 0 0 4.07 11zm0 2h3.18a14.7 14.7 0 0 0 1.2 5.02A8.02 8.02 0 0 0 4.07 13zm7.93 6.93c-.97-1.34-1.83-3.42-2.1-6.93h4.2c-.27 3.51-1.13 5.59-2.1 6.93zm3.55-1.91a14.7 14.7 0 0 0 1.2-5.02h3.18a8.02 8.02 0 0 1-4.38 5.02z"/></svg>
+                </a>
+
+                <!-- EMAIL ICON -->
+                <a href="mailto:info@petrielandscaping.co.uk" class="icon-badge" title="Email Us">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="#3b4876" d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                </a>
+
+                <!-- FACEBOOK ICON -->
+                <a href="https://www.facebook.com/share/1AsdpXSyBH/?mibextid=wwXIfr" target="_blank" class="icon-badge" title="Facebook">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="#3b4876" d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.61 8.84 8.33 9.8v-6.93H7.9v-2.87h2.43V9.81c0-2.4 1.43-3.73 3.62-3.73 1.05 0 2.15.19 2.15.19v2.36h-1.21c-1.19 0-1.56.74-1.56 1.5v1.8h2.66l-.42 2.87h-2.24V21.8C18.39 20.84 22 16.84 22 12z"/></svg>
+                </a>
+
+                <!-- INSTAGRAM ICON -->
+                <a href="https://www.instagram.com/petrielandscaping?stkn=MXFoNmRjOGc2NngxdA==" target="_blank" class="icon-badge" title="Instagram">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="#3b4876" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                </a>
+              </div>
+            </div>
           </div>
 
           <svg class="corner-flowers" width="140" height="110" viewBox="0 0 140 110">
@@ -1050,9 +1095,9 @@
     document.getElementById('quoteIntro').value = generateIntroText(fullName);
 
     const warningBanner = document.getElementById('hunWarningBanner');
-    const isLaudrup = fullName.trim().toLowerCase() === 'brian laudrup';
+    const isFerguson = fullName.trim().toLowerCase() === 'ian ferguson';
 
-    if (isLaudrup) {
+    if (isFerguson) {
       if (warningBanner) warningBanner.style.display = 'block';
       if (!easterEggTriggered) {
         playEasterEggSound();
@@ -1152,7 +1197,7 @@
     }
   });
 
-  /* EXPORT PDF DIRECTLY TO QUOTEPDFS FOLDER WITH SMART PAGE BREAKS */
+  /* EXPORT PDF DIRECTLY TO QUOTEPDFS FOLDER ON A SINGLE GROWING PAGE WITH CLICKABLE LINKS */
   async function generatePdfToFolder() {
     const element = document.getElementById('quotePaper');
     const name = document.getElementById('clientName').value || "Quote";
@@ -1163,15 +1208,21 @@
 
     const pdfName = `${name}${townStr}_${ref}.pdf`.replace(/[/\\?%*:|"<>]/g, '_').trim();
 
-    showToast("Generating PDF in background...");
+    showToast("Generating PDF on single continuous canvas...");
+
+    const widthMm = 210; // Standard A4 width
+    const elementWidthPx = element.offsetWidth || 750;
+    const elementHeightPx = element.offsetHeight || 1000;
+    const heightMm = (elementHeightPx / elementWidthPx) * widthMm + 16; // Dynamic page height
 
     const opt = {
       margin:       [8, 8, 8, 8],
       filename:     pdfName,
       image:        { type: 'jpeg', quality: 0.98 },
       html2canvas:  { scale: 2, useCORS: true, logging: false },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak:    { mode: ['css', 'legacy'], avoid: ['tr', '.totals-box', '.doc-section', '.doc-term-block', '.doc-footer-container'] }
+      jsPDF:        { unit: 'mm', format: [widthMm, heightMm], orientation: 'portrait' },
+      pagebreak:    { mode: 'none' },
+      enableLinks:  true
     };
 
     try {
