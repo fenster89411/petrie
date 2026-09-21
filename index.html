@@ -529,9 +529,13 @@
 
     <!-- BOX 1: INTRODUCTORY MESSAGE -->
     <div class="form-section-box">
-      <h3>💬 Introductory Message</h3>
+      <div style="display: flex; justify-content: space-between; align-items: center; background: var(--primary); margin: -16px -16px 14px -16px; padding: 10px 16px;">
+        <h3 style="margin: 0; padding: 0; background: none; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #ffffff;">💬 Introductory Message</h3>
+        <button type="button" onclick="saveDefaultIntroTemplate()" style="font-size: 11px; padding: 4px 8px; background: #ffffff; color: var(--primary); border: none; font-weight: bold; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="Save current text as default template for future new quotes">💾 Save as Default</button>
+      </div>
       <div class="form-group" style="margin-bottom: 0;">
         <textarea id="quoteIntro" rows="4" placeholder="Introductory message..." oninput="updatePreview()"></textarea>
+        <span style="font-size: 10px; color: #718096; display: block; margin-top: 4px;">Tip: Use <strong>&lt;Name&gt;</strong> in your text as a placeholder for automatic client name insertion.</span>
       </div>
     </div>
 
@@ -967,6 +971,8 @@
     }
   ];
 
+  let defaultIntroTemplate = `Dear <Name>,\nThank you for the opportunity to provide a quote for your upcoming groundwork.\nPlease find your itemised quotation below. I hope it meets your requirements, and I’d be delighted to discuss any questions you may have.`;
+
   let presets = [];
   let termPresets = [];
   let clientPresets = [];
@@ -1083,10 +1089,29 @@
     }, 2500);
   }
 
-  /* DYNAMIC INTRO TEMPLATE GENERATOR */
+  /* DYNAMIC INTRO TEMPLATE GENERATOR & SAVER */
   function generateIntroText(fullName) {
     const firstName = fullName && fullName.trim() !== "" ? fullName.trim().split(' ')[0] : "<Name>";
-    return `Dear ${firstName},\nThank you for the opportunity to provide a quote for your upcoming groundwork.\nPlease find your itemised quotation below. I hope it meets your requirements, and I’d be delighted to discuss any questions you may have.`;
+    return defaultIntroTemplate.replace(/<Name>/g, firstName);
+  }
+
+  async function saveDefaultIntroTemplate() {
+    const currentText = document.getElementById('quoteIntro').value;
+    if (!currentText.trim()) return;
+
+    const fullName = document.getElementById('clientName').value.trim();
+    const firstName = fullName ? fullName.split(' ')[0] : '';
+
+    let templateText = currentText;
+    if (firstName && templateText.includes(firstName)) {
+      templateText = templateText.replace(new RegExp(firstName, 'g'), '<Name>');
+    }
+
+    defaultIntroTemplate = templateText;
+    localStorage.setItem('defaultIntroTemplate', defaultIntroTemplate);
+
+    await syncConfigToServer();
+    showToast("Saved as default intro template!");
   }
 
   function handleClientNameInput() {
@@ -1369,6 +1394,9 @@
   }
 
   async function syncWithServer() {
+    const localIntro = localStorage.getItem('defaultIntroTemplate');
+    if (localIntro) defaultIntroTemplate = localIntro;
+
     try {
       const res = await fetch('/api/load');
       if (res.ok) {
@@ -1385,6 +1413,11 @@
           const exists = loadedTerms.some(t => t.title.toLowerCase() === dt.title.toLowerCase());
           if (!exists) loadedTerms.push(dt);
         });
+
+        if (data.defaultIntro) {
+          defaultIntroTemplate = data.defaultIntro;
+          localStorage.setItem('defaultIntroTemplate', defaultIntroTemplate);
+        }
 
         presets = loadedPresets;
         termPresets = loadedTerms;
@@ -1420,7 +1453,7 @@
       await fetch('/api/save_config', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ presets, terms: termPresets, clients: clientPresets, images: imageLibrary })
+        body: JSON.stringify({ presets, terms: termPresets, clients: clientPresets, images: imageLibrary, defaultIntro: defaultIntroTemplate })
       });
     } catch (e) {}
   }
