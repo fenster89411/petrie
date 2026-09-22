@@ -1,32 +1,21 @@
-from PIL import Image, ImageDraw
-
-# Create 512x512 transparent canvas
 img = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
 draw = ImageDraw.Draw(img)
+brand_color = '#3b4876'
 
-# 1. Extended Yellow Measuring Blade (Bottom Right)
-draw.rectangle([140, 370, 460, 430], fill='#f59e0b', outline='#b45309', width=4)
-# Ruler tick marks along blade
-for x in range(160, 450, 18):
-    h = 22 if (x - 160) % 36 == 0 else 12
-    draw.line([x, 370, x, 370 + h], fill='#1e293b', width=3)
+# 1. Extended Tape Hook
+draw.polygon([(390, 160), (425, 30), (445, 78), (415, 170)], fill=brand_color)
+draw.polygon([(425, 30), (500, 60), (485, 98), (445, 78)], fill=brand_color)
 
-# 2. Main Casing (Petrie Navy Casing with Gold Ring)
-draw.rounded_rectangle([70, 70, 370, 370], radius=70, fill='#3b4876', outline='#1e293b', width=8)
-# Outer Rubber Grip Corner Accent
-draw.rounded_rectangle([60, 220, 180, 380], radius=40, fill='#1e293b')
-draw.rounded_rectangle([70, 70, 370, 370], radius=70, fill=None, outline='#3b4876', width=8)
+# 2. Main Teardrop Casing
+draw.ellipse([60, 160, 340, 440], fill=brand_color)
+draw.polygon([(185, 161), (415, 200), (318, 395)], fill=brand_color)
 
-# 3. Center Reel Badge
-draw.ellipse([140, 140, 300, 310], fill='#f59e0b', outline='#b45309', width=6)
-draw.ellipse([195, 195, 245, 245], fill='#1e293b')
+# 3. Inner White Hub
+draw.ellipse([110, 210, 290, 390], fill='#ffffff')
 
-# 4. Red Thumb-Lock Switch (Top Left)
-draw.rounded_rectangle([180, 35, 250, 80], radius=12, fill='#e53e3e', outline='#9b2c2c', width=4)
+# 4. Center Bold 'P'
+draw.rectangle([152, 240, 182, 360], fill=brand_color)
+draw.rounded_rectangle([152, 240, 248, 310], radius=25, fill=brand_color)
+draw.rounded_rectangle([182, 260, 220, 290], radius=12, fill='#ffffff')
 
-# 5. Silver Belt Clip (Left Side)
-draw.rounded_rectangle([45, 170, 75, 270], radius=8, fill='#cbd5e0', outline='#64748b', width=3)
-
-# Save PNG to assets
-img.save('assets/icon.png')
-print("Tape measure icon saved to assets/icon.png")
+img.save('perfect_p_icon.png')
