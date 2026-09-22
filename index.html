@@ -202,7 +202,7 @@
     
     .doc-frame {
       border: 1px solid var(--border);
-      padding: 35px 30px 25px 30px;
+      padding: 35px 30px 50px 30px;
       height: auto;
       box-sizing: border-box;
       position: relative;
@@ -397,6 +397,7 @@
       position: relative;
       margin-top: 35px;
       padding-top: 10px;
+      padding-bottom: 15px;
       clear: both;
     }
     .doc-footer-line {
@@ -404,7 +405,7 @@
       position: absolute;
       left: -30px;
       right: -30px;
-      bottom: 15px;
+      bottom: 20px;
       z-index: 1;
     }
     .doc-footer-content {
@@ -461,7 +462,7 @@
     .corner-flowers {
       position: absolute;
       right: -20px;
-      bottom: -15px;
+      bottom: -10px;
       z-index: 3;
       pointer-events: none;
     }
@@ -572,7 +573,7 @@
           <input type="text" id="clientPhone" value="" placeholder="e.g., 07123 456789" oninput="updatePreview()">
         </div>
       </div>
-s
+
       <div class="row">
         <div class="form-group">
           <label>Client Email Address</label>
@@ -580,7 +581,7 @@ s
         </div>
         <div class="form-group">
           <label>Client Address (Line 2 = Town)</label>
-          <textarea id="clientAddress" rows="2" placeholder="Address..." oninput="updatePreview()" style="height: 69px; min-height: 35px; resize: vertical;"></textarea>
+          <textarea id="clientAddress" rows="2" placeholder="Address..." oninput="updatePreview()" style="height: 35px; min-height: 35px; resize: vertical;"></textarea>
         </div>
       </div>
 
@@ -779,7 +780,7 @@ s
       <div class="doc-frame">
         <div>
           <div class="header-branding">
-            <img src="logo.png" alt="Petrie Landscaping Logo" style="max-height: 112px; width: auto; height: auto; max-width: 100%; object-fit: contain; display: block; margin: 0;" onerror="this.onerror=null; this.src='images/logo.png';">
+            <img src="logo.png" alt="Petrie Landscaping Logo" style="height: 120px; max-height: 130px; width: auto; max-width: 100%; object-fit: contain; display: block; margin: 0;" onerror="this.onerror=null; this.src='images/logo.png';">
           </div>
 
           <div id="metaBar" style="font-size: 12px; color: #718096; margin-top: 10px; margin-bottom: 15px; padding: 6px 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;"></div>
@@ -991,6 +992,11 @@ s
   let easterEggTriggered = false;
   let audioPlayPromise = null;
 
+  // Heartbeat ping to automatically shut down background server when Safari closes
+  setInterval(() => {
+    fetch('/api/ping').catch(() => {});
+  }, 2000);
+
   // Unlock audio context on the user's first click anywhere on the page
   document.addEventListener('click', function unlockAudio() {
     if (!easterEggAudio) {
@@ -1009,11 +1015,6 @@ s
     renderClientPresetsDropdown();
     renderPresetManagers();
   }
-
-  // Heartbeat ping to automatically shut down background server when Safari closes
-  setInterval(() => {
-    fetch('/api/ping').catch(() => {});
-  }, 2000);
 
   /* CREATE DATA BACKUP ACTION */
   async function createDataBackup() {
@@ -1244,7 +1245,7 @@ s
     const widthMm = 210; // Standard A4 width
     const elementWidthPx = element.offsetWidth || 750;
     const elementHeightPx = element.offsetHeight || 1000;
-    const heightMm = (elementHeightPx / elementWidthPx) * widthMm + 16; // Dynamic page height
+    const heightMm = (elementHeightPx / elementWidthPx) * widthMm + 24; // Expanded page height buffer
 
     const opt = {
       margin:       [8, 8, 8, 8],
@@ -2411,7 +2412,6 @@ s
   }
 
   window.onload = init;
-  
 </script>
 </body>
 </html>
