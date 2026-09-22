@@ -32,9 +32,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller pillow
 
-      - name: Generate Tape Measure Icon
+      - name: Generate 'P' Tape Measure Icon Inline
         run: |
-          python create_icon.py
+          python -c "
+          from PIL import Image, ImageDraw
+          import os
+          os.makedirs('assets', exist_ok=True)
+          img = Image.new('RGBA', (512, 512), (0, 0, 0, 0))
+          draw = ImageDraw.Draw(img)
+          brand_color = '#3b4876'
+          draw.polygon([(390, 160), (425, 30), (445, 78), (415, 170)], fill=brand_color)
+          draw.polygon([(425, 30), (500, 60), (485, 98), (445, 78)], fill=brand_color)
+          draw.ellipse([60, 160, 340, 440], fill=brand_color)
+          draw.polygon([(185, 161), (415, 200), (318, 395)], fill=brand_color)
+          draw.ellipse([110, 210, 290, 390], fill='#ffffff')
+          draw.rectangle([152, 240, 182, 360], fill=brand_color)
+          draw.rounded_rectangle([152, 240, 248, 310], radius=25, fill=brand_color)
+          draw.rounded_rectangle([182, 260, 220, 290], radius=12, fill='#ffffff')
+          img.save('assets/icon.png')
+          "
+          rm -rf icon.iconset assets/icon.icns
           mkdir icon.iconset
           sips -z 16 16     assets/icon.png --out icon.iconset/icon_16x16.png
           sips -z 32 32     assets/icon.png --out icon.iconset/icon_16x16@2x.png
