@@ -8,6 +8,8 @@ import base64
 import platform
 import subprocess
 import zipfile
+import time
+import threading
 from datetime import datetime
 
 # Prevent crashes in PyInstaller --windowed mode where sys.stdout/stderr are None
@@ -16,7 +18,7 @@ if sys.stdout is None:
 if sys.stderr is None:
     sys.stderr = open(os.devnull, 'w')
 
-# Set working directory to the directory where the .exe or executable is located
+# Set working directory to the directory where the executable is located
 if getattr(sys, 'frozen', False):
     BASE_DIR = os.path.dirname(sys.executable)
 else:
@@ -31,18 +33,31 @@ os.makedirs('images', exist_ok=True)
 os.makedirs('Backups', exist_ok=True)
 
 PORT = 8000
+LAST_PING = time.time()
+START_TIME = time.time()
+
+# Background thread to monitor browser closure
+def heartbeat_monitor():
+    global LAST_PING
+    while True:
+        time.sleep(2)
+        # Allow a 12-second startup grace period for Safari to launch
+        if time.time() - START_TIME > 12:
+            if time.time() - LAST_PING > 6:
+                # No heartbeat received for 6 seconds (browser closed) -> exit process
+                os._exit(0)
+
+threading.Thread(target=heartbeat_monitor, daemon=True).start()
 
 class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, format, *args):
         pass
 
     def translate_path(self, path):
-        # First check standard path relative to CWD
         standard_path = super().translate_path(path)
         if os.path.exists(standard_path):
             return standard_path
         
-        # Fallback to PyInstaller internal bundle directory (_internal)
         if hasattr(sys, '_MEIPASS'):
             clean_path = path.split('?')[0].split('#')[0].lstrip('/')
             alt_path = os.path.join(sys._MEIPASS, clean_path)
@@ -52,6 +67,15 @@ class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
         return standard_path
 
     def do_GET(self):
+        global LAST_PING
+        if self.path == '/api/ping':
+            LAST_PING = time.time()
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'pong')
+            return
+
         if self.path == '/' or self.path == '':
             self.path = '/index.html'
 

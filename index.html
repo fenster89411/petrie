@@ -572,7 +572,7 @@
           <input type="text" id="clientPhone" value="" placeholder="e.g., 07123 456789" oninput="updatePreview()">
         </div>
       </div>
-
+s
       <div class="row">
         <div class="form-group">
           <label>Client Email Address</label>
@@ -1009,6 +1009,11 @@
     renderClientPresetsDropdown();
     renderPresetManagers();
   }
+
+  // Heartbeat ping to automatically shut down background server when Safari closes
+  setInterval(() => {
+    fetch('/api/ping').catch(() => {});
+  }, 2000);
 
   /* CREATE DATA BACKUP ACTION */
   async function createDataBackup() {
@@ -2406,6 +2411,7 @@
   }
 
   window.onload = init;
+  
 </script>
 </body>
 </html>
