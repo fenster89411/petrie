@@ -34,17 +34,15 @@ os.makedirs('Backups', exist_ok=True)
 
 PORT = 8000
 LAST_PING = time.time()
-START_TIME = time.time()
+CLIENT_CONNECTED = False
 
-# Background thread to monitor browser closure
+# Background thread: ONLY shuts down AFTER browser has connected at least once and then stopped pinging
 def heartbeat_monitor():
-    global LAST_PING
+    global LAST_PING, CLIENT_CONNECTED
     while True:
-        time.sleep(2)
-        # Allow a 12-second startup grace period for Safari to launch
-        if time.time() - START_TIME > 12:
-            if time.time() - LAST_PING > 6:
-                # No heartbeat received for 6 seconds (browser closed) -> exit process
+        time.sleep(3)
+        if CLIENT_CONNECTED:
+            if time.time() - LAST_PING > 10:
                 os._exit(0)
 
 threading.Thread(target=heartbeat_monitor, daemon=True).start()
@@ -67,9 +65,11 @@ class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
         return standard_path
 
     def do_GET(self):
-        global LAST_PING
+        global LAST_PING, CLIENT_CONNECTED
+        CLIENT_CONNECTED = True
+        LAST_PING = time.time()
+
         if self.path == '/api/ping':
-            LAST_PING = time.time()
             self.send_response(200)
             self.send_header('Content-Type', 'text/plain')
             self.end_headers()
@@ -92,6 +92,10 @@ class LocalDiskHandler(http.server.SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
+        global LAST_PING, CLIENT_CONNECTED
+        CLIENT_CONNECTED = True
+        LAST_PING = time.time()
+
         length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(length)
         req = json.loads(body.decode('utf-8')) if body else {}
