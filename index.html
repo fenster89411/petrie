@@ -575,13 +575,13 @@
       </div>
 
       <div class="row">
-        <div class="form-group">
+        <div class="form-group" style="flex: 0.8;">
           <label>Client Email Address</label>
           <input type="email" id="clientEmail" value="" placeholder="e.g., client@example.com" oninput="updatePreview()">
         </div>
-        <div class="form-group">
+        <div class="form-group" style="flex: 1.2;">
           <label>Client Address (Line 2 = Town)</label>
-          <textarea id="clientAddress" rows="2" placeholder="Address..." oninput="updatePreview()" style="height: 35px; min-height: 35px; resize: vertical;"></textarea>
+          <textarea id="clientAddress" rows="3" placeholder="Address..." oninput="updatePreview()" style="height: 76px; min-height: 45px; resize: vertical;"></textarea>
         </div>
       </div>
 
@@ -673,13 +673,15 @@
             <input type="text" id="mgrClientPhone" placeholder="e.g., 07123 456789">
           </div>
         </div>
-        <div class="form-group">
-          <label>Client Email Address</label>
-          <input type="email" id="mgrClientEmail" placeholder="e.g., client@example.com">
-        </div>
-        <div class="form-group">
-          <label>Client Address</label>
-          <textarea id="mgrClientAddress" rows="2" placeholder="Street&#10;Town&#10;Postcode"></textarea>
+        <div class="row">
+          <div class="form-group" style="flex: 0.8;">
+            <label>Client Email Address</label>
+            <input type="email" id="mgrClientEmail" placeholder="e.g., client@example.com">
+          </div>
+          <div class="form-group" style="flex: 1.2;">
+            <label>Client Address</label>
+            <textarea id="mgrClientAddress" rows="3" placeholder="Street&#10;Town&#10;Postcode" style="height: 76px; resize: vertical;"></textarea>
+          </div>
         </div>
         <button type="button" onclick="handleAddClientPreset()" style="width: 100%;">Save Client Preset</button>
       </div>
